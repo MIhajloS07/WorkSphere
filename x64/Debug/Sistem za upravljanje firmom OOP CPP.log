@@ -1,0 +1,5 @@
+﻿  firma.cpp
+E:\VISUAL STUDIO\c++\Sistem za upravljanje firmom OOP CPP\Sistem za upravljanje firmom OOP CPP\firma.cpp(220,29): warning C4267: 'argument': conversion from 'size_t' to 'int', possible loss of data
+E:\VISUAL STUDIO\c++\Sistem za upravljanje firmom OOP CPP\Sistem za upravljanje firmom OOP CPP\firma.cpp(309,30): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+E:\VISUAL STUDIO\c++\Sistem za upravljanje firmom OOP CPP\Sistem za upravljanje firmom OOP CPP\firma.cpp(76,7): warning C4101: 'zauzet': unreferenced local variable
+  Sistem za upravljanje firmom OOP CPP.vcxproj -> E:\VISUAL STUDIO\c++\Sistem za upravljanje firmom OOP CPP\x64\Debug\Sistem za upravljanje firmom OOP CPP.exe
