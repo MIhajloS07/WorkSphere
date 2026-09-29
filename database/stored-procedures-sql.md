@@ -25,7 +25,8 @@ BEGIN
         END
 END;
 GO
-
+```
+``` sql
 --EMPLOYEES
 SET ANSI_NULLS ON
 GO
@@ -52,7 +53,9 @@ BEGIN
         END
 END;
 GO
+```
 
+```sql
 --CREATE WORKER
 SET ANSI_NULLS ON
 GO
@@ -70,7 +73,9 @@ BEGIN
     VALUES (@id, @name, @salary, 'WORKER', @position);
 END
 GO
+```
 
+```sql
 --CREATE MANAGER
 SET ANSI_NULLS ON
 GO
@@ -88,7 +93,9 @@ BEGIN
     VALUES(@id, @name, @salary, 'MANAGER', @bonus)
 END
 GO
+```
 
+``` sql
 --CREATE PROJECT
 SET ANSI_NULLS ON
 GO
@@ -104,7 +111,9 @@ BEGIN
         VALUES(@name, @deadline)
 END
 GO
+```
 
+```sql
 --DELETE EMPLOYEE
 SET ANSI_NULLS ON
 GO
@@ -119,7 +128,9 @@ BEGIN
         WHERE id = @id;
 END
 GO
+```
 
+``` sql
 --DELETE PROJECT
 SET ANSI_NULLS ON
 GO
@@ -134,7 +145,9 @@ BEGIN
         WHERE id = @id;
 END
 GO
+```
 
+``` sql
 --UPDATE EMPLOYEE SALARY
 SET ANSI_NULLS ON
 GO
