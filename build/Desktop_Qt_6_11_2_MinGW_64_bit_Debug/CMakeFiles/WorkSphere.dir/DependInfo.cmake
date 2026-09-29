@@ -16,6 +16,7 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "D:/qt projects/WorkSphere/models/Manager.cpp" "CMakeFiles/WorkSphere.dir/models/Manager.cpp.obj" "gcc" "CMakeFiles/WorkSphere.dir/models/Manager.cpp.obj.d"
   "D:/qt projects/WorkSphere/models/Project.cpp" "CMakeFiles/WorkSphere.dir/models/Project.cpp.obj" "gcc" "CMakeFiles/WorkSphere.dir/models/Project.cpp.obj.d"
   "D:/qt projects/WorkSphere/models/Worker.cpp" "CMakeFiles/WorkSphere.dir/models/Worker.cpp.obj" "gcc" "CMakeFiles/WorkSphere.dir/models/Worker.cpp.obj.d"
+  "D:/qt projects/WorkSphere/widgetmodels/CircularProgressWidget.cpp" "CMakeFiles/WorkSphere.dir/widgetmodels/CircularProgressWidget.cpp.obj" "gcc" "CMakeFiles/WorkSphere.dir/widgetmodels/CircularProgressWidget.cpp.obj.d"
   "D:/qt projects/WorkSphere/workspherewindow.cpp" "CMakeFiles/WorkSphere.dir/workspherewindow.cpp.obj" "gcc" "CMakeFiles/WorkSphere.dir/workspherewindow.cpp.obj.d"
   )
 

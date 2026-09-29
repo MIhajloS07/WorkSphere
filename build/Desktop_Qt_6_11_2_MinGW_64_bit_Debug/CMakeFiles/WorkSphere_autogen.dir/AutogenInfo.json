@@ -383,7 +383,6 @@
 		"D:/Qt/6.11.2/mingw_64/lib/cmake/Qt6/QtPublicWindowsHelpers.cmake",
 		"D:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/CMakeFindDependencyMacro.cmake",
 		"D:/Qt/6.11.2/mingw_64/lib/cmake/Qt6/Qt6Dependencies.cmake",
-		"D:/Qt/Tools/CMake_64/share/cmake-3.30/Modules/GNUInstallDirs.cmake",
 		"D:/Qt/6.11.2/mingw_64/lib/cmake/Qt6/windows/app.exe.manifest.in"
 	],
 	"CMAKE_SOURCE_DIR" : "D:/qt projects/WorkSphere",
@@ -423,6 +422,12 @@
 			null
 		],
 		[
+			"D:/qt projects/WorkSphere/widgetmodels/CircularProgressWidget.h",
+			"MU",
+			"WCY7BEOLHP/moc_CircularProgressWidget.cpp",
+			null
+		],
+		[
 			"D:/qt projects/WorkSphere/workspherewindow.h",
 			"MU",
 			"EWIEGA46WW/moc_workspherewindow.cpp",
@@ -437,7 +442,6 @@
 		"MINGW_HAS_SECURE_API=1",
 		"QT_CORE_LIB",
 		"QT_GUI_LIB",
-		"QT_NEEDS_QMAIN",
 		"QT_QML_DEBUG",
 		"QT_SQL_LIB",
 		"QT_WIDGETS_LIB",
@@ -457,10 +461,10 @@
 	],
 	"MOC_INCLUDES" : 
 	[
-		"D:/Qt/6.11.2/mingw_64/include/QtCore",
-		"D:/Qt/6.11.2/mingw_64/include",
-		"D:/Qt/6.11.2/mingw_64/mkspecs/win32-g++",
 		"D:/Qt/6.11.2/mingw_64/include/QtWidgets",
+		"D:/Qt/6.11.2/mingw_64/include",
+		"D:/Qt/6.11.2/mingw_64/include/QtCore",
+		"D:/Qt/6.11.2/mingw_64/mkspecs/win32-g++",
 		"D:/Qt/6.11.2/mingw_64/include/QtGui",
 		"D:/Qt/6.11.2/mingw_64/include/QtSql",
 		"D:/Qt/Tools/mingw1310_64/lib/gcc/x86_64-w64-mingw32/13.1.0/include/c++",
@@ -509,6 +513,11 @@
 		[ "D:/qt projects/WorkSphere/models/Manager.cpp", "MU", null ],
 		[ "D:/qt projects/WorkSphere/models/Project.cpp", "MU", null ],
 		[ "D:/qt projects/WorkSphere/models/Worker.cpp", "MU", null ],
+		[
+			"D:/qt projects/WorkSphere/widgetmodels/CircularProgressWidget.cpp",
+			"MU",
+			null
+		],
 		[ "D:/qt projects/WorkSphere/workspherewindow.cpp", "MU", null ]
 	],
 	"UIC_OPTIONS" : [],

@@ -13,6 +13,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/WorkSphere.dir/models/Project.cpp.obj.d"
   "CMakeFiles/WorkSphere.dir/models/Worker.cpp.obj"
   "CMakeFiles/WorkSphere.dir/models/Worker.cpp.obj.d"
+  "CMakeFiles/WorkSphere.dir/widgetmodels/CircularProgressWidget.cpp.obj"
+  "CMakeFiles/WorkSphere.dir/widgetmodels/CircularProgressWidget.cpp.obj.d"
   "CMakeFiles/WorkSphere.dir/workspherewindow.cpp.obj"
   "CMakeFiles/WorkSphere.dir/workspherewindow.cpp.obj.d"
   "CMakeFiles/WorkSphere_autogen.dir/AutogenUsed.txt"
