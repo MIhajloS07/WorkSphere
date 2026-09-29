@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <defs>
+    <!-- Glavni plavi gradient za sferu -->
+    <linearGradient id="sphereGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#00d2ff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#0f4c75;stop-opacity:1" />
+    </linearGradient>
+    <!-- Zeleno-plavi gradient za unutrašnje elemente -->
+    <linearGradient id="accentGrad" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#10b981;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00d2ff;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Spoljni prsten (Sfera / Orbita) -->
+  <circle cx="128" cy="128" r="100" fill="none" stroke="url(#sphereGrad)" stroke-width="12" stroke-dasharray="150 40" stroke-linecap="round"/>
+  
+  <!-- Unutrašnji prsten -->
+  <circle cx="128" cy="128" r="75" fill="none" stroke="url(#accentGrad)" stroke-width="4" stroke-dasharray="60 40" stroke-linecap="round" opacity="0.7"/>
+
+  <!-- Stilizovano slovo 'W' (Work) u sredini -->
+  <path d="M 73 98 L 103 168 L 128 128 L 153 168 L 183 98" fill="none" stroke="url(#sphereGrad)" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Čvorišta (Zaposleni/Konekcije) -->
+  <circle cx="73" cy="98" r="8" fill="#00d2ff" />
+  <circle cx="128" cy="128" r="9" fill="#ffffff" />
+  <circle cx="183" cy="98" r="8" fill="#00d2ff" />
+  <circle cx="103" cy="168" r="8" fill="#10b981" />
+  <circle cx="153" cy="168" r="8" fill="#10b981" />
+</svg>

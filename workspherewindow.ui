@@ -34,27 +34,27 @@
      <number>0</number>
     </property>
 
-    <!-- LEVI SIDEBAR -->
+    <!-- LEFT SIDEBAR -->
     <item>
      <widget class="QWidget" name="sidebarWidget">
       <property name="minimumWidth">
-       <number>240</number>
+       <number>280</number>
       </property>
       <property name="maximumWidth">
-       <number>240</number>
+       <number>280</number>
       </property>
       <property name="styleSheet">
        <string notr="true">background-color: #040711;</string>
       </property>
       <layout class="QVBoxLayout" name="verticalLayoutSidebar">
        <property name="leftMargin">
-        <number>20</number>
+        <number>25</number>
        </property>
        <property name="topMargin">
-        <number>35</number>
+        <number>30</number>
        </property>
        <property name="rightMargin">
-        <number>20</number>
+        <number>25</number>
        </property>
        <property name="bottomMargin">
         <number>30</number>
@@ -68,20 +68,42 @@
           <set>Qt::AlignCenter</set>
          </property>
          <property name="styleSheet">
-          <string notr="true">color: #ffffff; font-size: 22px; font-weight: bold; font-family: 'Segoe UI';</string>
+          <string notr="true">color: #ffffff; font-size: 26px; font-weight: bold; font-family: 'Segoe UI';</string>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QLabel" name="clockLabel">
          <property name="text">
-          <string>10:07:52</string>
+          <string>12:37:34</string>
          </property>
          <property name="alignment">
           <set>Qt::AlignCenter</set>
          </property>
          <property name="styleSheet">
-          <string notr="true">color: #00d2ff; font-size: 15px; font-weight: bold; font-family: 'Segoe UI';</string>
+          <string notr="true">color: #38bdf8; font-size: 20px; font-weight: bold; font-family: 'Segoe UI'; margin-top: 5px; margin-bottom: 10px;</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="labelLogoIcon">
+         <property name="minimumSize">
+          <size>
+           <width>130</width>
+           <height>130</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>130</width>
+           <height>130</height>
+          </size>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color: #0b1126; border-radius: 65px;</string>
          </property>
         </widget>
        </item>
@@ -96,7 +118,7 @@
          <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
-           <height>30</height>
+           <height>20</height>
           </size>
          </property>
         </spacer>
@@ -104,23 +126,21 @@
        <item>
         <widget class="QPushButton" name="btnDashboard">
          <property name="text">
-          <string>  Dashboard</string>
+          <string>Dashboard</string>
          </property>
          <property name="styleSheet">
           <string notr="true">
-           QPushButton {
-               background-color: #0f172a;
-               color: #ffffff;
-               border: none;
-               border-radius: 8px;
-               text-align: left;
-               padding: 12px 16px;
-               font-family: 'Segoe UI';
-               font-size: 14px;
-           }
-           QPushButton:hover {
-               background-color: #1e293b;
-           }
+            QPushButton {
+                background-color: #0f172a;
+                color: #ffffff;
+                border: none;
+                border-radius: 8px;
+                text-align: center;
+                padding: 14px;
+                font-family: 'Segoe UI';
+                font-size: 16px;
+                font-weight: bold;
+            }
           </string>
          </property>
         </widget>
@@ -128,24 +148,49 @@
        <item>
         <widget class="QPushButton" name="btnEmployees">
          <property name="text">
-          <string>  Employees</string>
+          <string>Employees</string>
          </property>
          <property name="styleSheet">
           <string notr="true">
-           QPushButton {
-               background-color: transparent;
-               color: #94a3b8;
-               border: none;
-               border-radius: 8px;
-               text-align: left;
-               padding: 12px 16px;
-               font-family: 'Segoe UI';
-               font-size: 14px;
-           }
-           QPushButton:hover {
-               background-color: #0f172a;
-               color: #ffffff;
-           }
+            QPushButton {
+                background-color: transparent;
+                color: #94a3b8;
+                border: none;
+                border-radius: 8px;
+                text-align: center;
+                padding: 14px;
+                font-family: 'Segoe UI';
+                font-size: 16px;
+            }
+            QPushButton:hover {
+                background-color: #0f172a;
+                color: #ffffff;
+            }
+          </string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="btnProjects">
+         <property name="text">
+          <string>Projects</string>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">
+            QPushButton {
+                background-color: transparent;
+                color: #94a3b8;
+                border: none;
+                border-radius: 8px;
+                text-align: center;
+                padding: 14px;
+                font-family: 'Segoe UI';
+                font-size: 16px;
+            }
+            QPushButton:hover {
+                background-color: #0f172a;
+                color: #ffffff;
+            }
           </string>
          </property>
         </widget>
@@ -158,10 +203,23 @@
          <property name="sizeHint" stdset="0">
           <size>
            <width>20</width>
-           <height>350</height>
+           <height>40</height>
           </size>
          </property>
         </spacer>
+       </item>
+       <item>
+        <widget class="QFrame" name="lineSidebar">
+         <property name="frameShape">
+          <enum>QFrame::HLine</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Sunken</enum>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">color: #1e3a8a; background-color: #1e3a8a; max-height: 2px;</string>
+         </property>
+        </widget>
        </item>
        <item>
         <widget class="QPushButton" name="btnSettings">
@@ -170,18 +228,18 @@
          </property>
          <property name="styleSheet">
           <string notr="true">
-           QPushButton {
-               background-color: transparent;
-               color: #94a3b8;
-               border: none;
-               text-align: left;
-               padding: 8px;
-               font-family: 'Segoe UI';
-               font-size: 13px;
-           }
-           QPushButton:hover {
-               color: #ffffff;
-           }
+            QPushButton {
+                background-color: transparent;
+                color: #94a3b8;
+                border: none;
+                text-align: center;
+                padding: 12px;
+                font-family: 'Segoe UI';
+                font-size: 16px;
+            }
+            QPushButton:hover {
+                color: #ffffff;
+            }
           </string>
          </property>
         </widget>
@@ -190,24 +248,27 @@
      </widget>
     </item>
 
-    <!-- DESNI SADRŽAJ -->
+    <!-- RIGHT CONTENT -->
     <item>
      <widget class="QStackedWidget" name="stackedWidget">
 
-      <!-- DASHBOARD STRANA -->
+      <!-- DASHBOARD PAGE -->
       <widget class="QWidget" name="dashboardPage">
        <layout class="QVBoxLayout" name="verticalLayoutDashboard">
         <property name="leftMargin">
-         <number>30</number>
+         <number>35</number>
         </property>
         <property name="topMargin">
-         <number>30</number>
+         <number>15</number>
         </property>
         <property name="rightMargin">
-         <number>30</number>
+         <number>35</number>
         </property>
         <property name="bottomMargin">
-         <number>30</number>
+         <number>20</number>
+        </property>
+        <property name="spacing">
+         <number>10</number>
         </property>
         <item>
          <widget class="QLabel" name="labelDashboardTitle">
@@ -215,7 +276,7 @@
            <string>Dashboard</string>
           </property>
           <property name="styleSheet">
-           <string notr="true">color: #ffffff; font-size: 20px; font-weight: bold; font-family: 'Segoe UI';</string>
+           <string notr="true">color: #ffffff; font-size: 26px; font-weight: bold; font-family: 'Segoe UI';</string>
           </property>
          </widget>
         </item>
@@ -230,9 +291,22 @@
              <string notr="true">background-color: #0f172a; border-radius: 12px;</string>
             </property>
             <property name="minimumHeight">
-             <number>140</number>
+             <number>160</number>
             </property>
             <layout class="QVBoxLayout" name="verticalLayoutCard1">
+             <item>
+              <widget class="QLabel" name="lblCardTitle1">
+               <property name="text">
+                <string>Employees</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">color: #94a3b8; font-size: 15px; font-family: 'Segoe UI'; font-weight: bold;</string>
+               </property>
+              </widget>
+             </item>
              <item>
               <widget class="QLabel" name="lblValueEmp">
                <property name="text">
@@ -252,9 +326,22 @@
              <string notr="true">background-color: #0f172a; border-radius: 12px;</string>
             </property>
             <property name="minimumHeight">
-             <number>140</number>
+             <number>160</number>
             </property>
             <layout class="QVBoxLayout" name="verticalLayoutCard2">
+             <item>
+              <widget class="QLabel" name="lblCardTitle2">
+               <property name="text">
+                <string>Projects</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">color: #94a3b8; font-size: 15px; font-family: 'Segoe UI'; font-weight: bold;</string>
+               </property>
+              </widget>
+             </item>
              <item>
               <widget class="QLabel" name="lblValueProj">
                <property name="text">
@@ -274,9 +361,22 @@
              <string notr="true">background-color: #0f172a; border-radius: 12px;</string>
             </property>
             <property name="minimumHeight">
-             <number>140</number>
+             <number>160</number>
             </property>
             <layout class="QVBoxLayout" name="verticalLayoutCard3">
+             <item>
+              <widget class="QLabel" name="lblCardTitle3">
+               <property name="text">
+                <string>Payroll</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">color: #94a3b8; font-size: 15px; font-family: 'Segoe UI'; font-weight: bold;</string>
+               </property>
+              </widget>
+             </item>
              <item>
               <widget class="QLabel" name="lblValuePayroll">
                <property name="text">
@@ -293,7 +393,23 @@
          </layout>
         </item>
         <item>
+         <widget class="QFrame" name="lineDashboard">
+          <property name="frameShape">
+           <enum>QFrame::HLine</enum>
+          </property>
+          <property name="frameShadow">
+           <enum>QFrame::Sunken</enum>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color: #1e3a8a; background-color: #1e3a8a; max-height: 2px; margin-top: 15px; margin-bottom: 20px;</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QTableWidget" name="tableRecentEmployees">
+          <property name="maximumHeight">
+           <number>280</number>
+          </property>
           <property name="styleSheet">
            <string notr="true">
             QTableWidget {
@@ -311,6 +427,7 @@
                 border: none;
                 font-weight: bold;
                 font-family: 'Segoe UI';
+                font-size: 13px;
             }
            </string>
           </property>
@@ -344,7 +461,7 @@
        </layout>
       </widget>
 
-      <!-- EMPLOYEE FORM STRANA (U potpunosti centrirana po sredini i kompaktna) -->
+      <!-- EMPLOYEE FORM PAGE -->
       <widget class="QWidget" name="employeeFormPage">
        <layout class="QVBoxLayout" name="verticalLayoutEmployeeFormPage">
         <property name="leftMargin">
@@ -396,19 +513,6 @@
              <property name="spacing">
               <number>15</number>
              </property>
-             <item>
-              <widget class="QLabel" name="labelFormTitle">
-               <property name="text">
-                <string>Create New Employee / Manager</string>
-               </property>
-               <property name="alignment">
-                <set>Qt::AlignCenter</set>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">color: #ffffff; font-size: 20px; font-weight: bold; font-family: 'Segoe UI'; margin-bottom: 10px;</string>
-               </property>
-              </widget>
-             </item>
             </layout>
            </widget>
           </item>
@@ -440,6 +544,110 @@
           </property>
          </spacer>
         </item>
+       </layout>
+      </widget>
+
+      <!-- PROJECT FORM PAGE -->
+      <widget class="QWidget" name="projectFormPage">
+       <layout class="QVBoxLayout" name="verticalLayoutProjectFormPage">
+        <property name="leftMargin">
+         <number>40</number>
+        </property>
+        <property name="topMargin">
+         <number>30</number>
+        </property>
+        <property name="rightMargin">
+         <number>40</number>
+        </property>
+        <property name="bottomMargin">
+         <number>30</number>
+        </property>
+        <item>
+         <spacer name="spacerProjectFormTop">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayoutProjectFormWrapper">
+          <item>
+           <spacer name="spacerProjectFormLeft">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QWidget" name="projectFormContainerWidget">
+            <property name="maximumWidth">
+             <number>520</number>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayoutProjectFormContent">
+             <property name="spacing">
+              <number>15</number>
+             </property>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <spacer name="spacerProjectFormRight">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <spacer name="spacerProjectFormBottom">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>60</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+
+      <!-- SETTINGS PAGE -->
+      <widget class="QWidget" name="settingsPage">
+       <layout class="QVBoxLayout" name="verticalLayoutSettingsPage">
+        <property name="leftMargin">
+         <number>40</number>
+        </property>
+        <property name="topMargin">
+         <number>30</number>
+        </property>
+        <property name="rightMargin">
+         <number>40</number>
+        </property>
+        <property name="bottomMargin">
+         <number>30</number>
+        </property>
        </layout>
       </widget>
 

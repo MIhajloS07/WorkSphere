@@ -39,3 +39,5 @@ target_link_libraries(WorkSphere PRIVATE
 if(QT_VERSION_MAJOR EQUAL 6)
     qt_finalize_executable(WorkSphere)
 endif()
+
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/logo.svg DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
