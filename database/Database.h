@@ -15,7 +15,7 @@ private:
     QSqlDatabase db;
 public:
     Database(const std::string& connStr);
-
+    Database() { }
     void createTables();
 
     void addWorker(const Worker& worker);

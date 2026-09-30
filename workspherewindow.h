@@ -11,6 +11,8 @@
 #include <QLayout>
 #include <vector>
 #include "./models/Project.h"
+#include "./database/Database.h"
+#include "./widgetmodels/CircularProgressWidget.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -30,7 +32,9 @@ private slots:
     void on_btnProjects_clicked();
     void on_btnSaveProject_clicked();
     void saveSettings();
-
+    void on_btnCreateEmployee_clicked();
+    void on_btnDeleteEmployee_clicked();
+    void onEmployeeCellChanged(int row, int column);
 private:
     void setupNavigation();
     void setupDashboard();
@@ -41,17 +45,30 @@ private:
     void applyTheme(const QString &themeName);
     void updateNavigationStyles();
     void clearLayout(QLayout *layout);
-
+    void loadEmployeesToTable();
+    void refreshEmployeeTable();
+    void updateDashboardStats();
+    QWidget* createInputRow(QString labelText, QWidget *inputField, QWidget *parent = nullptr);
     bool m_isDarkTheme = true;
-    QPushButton *m_activeNavButton = nullptr;
+    bool m_isLoadingData = false;
 
+    QPushButton *m_activeNavButton = nullptr;
     QLineEdit *editProjectName = nullptr;
+    QLineEdit *searchEmployeeInput;
     QDateEdit *editProjectDeadline = nullptr;
     std::vector<Project> projectsList;
-
     QComboBox *comboCurrency = nullptr;
     QComboBox *comboDateFormat = nullptr;
     QComboBox *comboTheme = nullptr;
+    QLineEdit *txtEmployeeName = nullptr;
+    QLineEdit *txtEmployeeSalary = nullptr;
+    QComboBox *comboEmployeeType = nullptr;
+    QLineEdit *txtEmployeePosition = nullptr;
+    QLineEdit *txtEmployeeBonus = nullptr;
+    CircularProgressWidget *widgetEmployees = nullptr;
+    CircularProgressWidget *widgetProjects = nullptr;
+    CircularProgressWidget *widgetPayroll = nullptr;
+    Database m_database;
 
     Ui::WorkSphereWindow *ui = nullptr;
 };

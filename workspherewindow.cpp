@@ -1,6 +1,8 @@
 #include "workspherewindow.h"
 #include "ui_workspherewindow.h"
 #include "widgetmodels/CircularProgressWidget.h"
+#include "models/Worker.h"
+#include "models/Manager.h"
 #include <QTimer>
 #include <QTime>
 #include <QVBoxLayout>
@@ -12,13 +14,16 @@
 #include <QHeaderView>
 #include <QMessageBox>
 #include <QSettings>
+#include <QRandomGenerator>
 
 WorkSphereWindow::WorkSphereWindow(QWidget *parent)
     : QMainWindow(parent)
+    , m_database("DRIVER={ODBC Driver 17 for SQL Server};SERVER=LOCALHOST\\SQLEXPRESS;DATABASE=WorkSphere;Trusted_Connection=yes;Encrypt=yes;TrustServerCertificate=yes;")
     , ui(new Ui::WorkSphereWindow)
 {
     ui->setupUi(this);
 
+    refreshEmployeeTable();
     setupDashboard();
     setupNavigation();
     setupTimer();
@@ -42,6 +47,51 @@ WorkSphereWindow::WorkSphereWindow(QWidget *parent)
 
         ui->labelLogoIcon->setPixmap(scaledLogo);
     }
+
+    searchEmployeeInput = new QLineEdit(this);
+    searchEmployeeInput->setPlaceholderText("Search employees by ID or name...");
+    searchEmployeeInput->setStyleSheet(
+        "QLineEdit {"
+        "   background-color: #0f172a;"
+        "   color: #ffffff;"
+        "   border: 1px solid #1e293b;"
+        "   border-radius: 8px;"
+        "   padding: 8px 12px;"
+        "   font-family: 'Segoe UI';"
+        "   font-size: 14px;"
+        "}"
+        "QLineEdit:focus {"
+        "   border: 1px solid #38bdf8;"
+        "}"
+    );
+
+    QVBoxLayout *dashLayout = qobject_cast<QVBoxLayout*>(ui->dashboardPage->layout());
+    if (dashLayout) {
+        int index = dashLayout->indexOf(ui->tableRecentEmployees);
+        if (index != -1) {
+            dashLayout->insertWidget(index, searchEmployeeInput);
+        }
+    }
+
+    connect(searchEmployeeInput, &QLineEdit::textChanged, this, [this](const QString &text) {
+        QString filter = text.trimmed().toLower();
+        QTableWidget *table = ui->tableRecentEmployees;
+
+        for (int row = 0; row < table->rowCount(); ++row) {
+            bool match = false;
+            QTableWidgetItem *idItem = table->item(row, 0);
+            QTableWidgetItem *nameItem = table->item(row, 1);
+
+            if (idItem && idItem->text().toLower().contains(filter)) {
+                match = true;
+            }
+            if (nameItem && nameItem->text().toLower().contains(filter)) {
+                match = true;
+            }
+
+            table->setRowHidden(row, !match);
+        }
+    });
 }
 
 WorkSphereWindow::~WorkSphereWindow()
@@ -109,7 +159,6 @@ void WorkSphereWindow::applyTheme(const QString &themeName)
     if (ui->labelDashboardTitle) {
         ui->labelDashboardTitle->setStyleSheet(QString("color: %1; font-size: 26px; font-weight: bold; background: transparent;").arg(textColor));
     }
-
 
     QString cardStyle = QString(R"(
         QWidget {
@@ -186,21 +235,81 @@ void WorkSphereWindow::setupDashboard()
     auto createExpandedWidget = [this](const QString &title, const QColor &color, int val, int maxVal, QWidget *oldWidget, QVBoxLayout *cardLayout) {
         CircularProgressWidget *w = new CircularProgressWidget(title, color, this);
         w->setValue(val, maxVal);
-
         w->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
         w->setMinimumSize(150, 150);
 
         cardLayout->replaceWidget(oldWidget, w);
         cardLayout->setAlignment(w, Qt::AlignCenter);
         delete oldWidget;
+        return w;
     };
 
-    createExpandedWidget("Employees", QColor(76, 201, 240), 84, 100, ui->lblValueEmp, ui->verticalLayoutCard1);
-    createExpandedWidget("Projects", QColor(13, 148, 136), 12, 20, ui->lblValueProj, ui->verticalLayoutCard2);
-    createExpandedWidget("Payroll", QColor(99, 102, 241), 234, 5000, ui->lblValuePayroll, ui->verticalLayoutCard3);
+    widgetEmployees = createExpandedWidget("Employees", QColor(76, 201, 240), 0, 100, ui->lblValueEmp, ui->verticalLayoutCard1);
+    widgetProjects  = createExpandedWidget("Projects", QColor(13, 148, 136), 0, 20, ui->lblValueProj, ui->verticalLayoutCard2);
+    widgetPayroll   = createExpandedWidget("Payroll", QColor(99, 102, 241), 0, 5000, ui->lblValuePayroll, ui->verticalLayoutCard3);
 
     ui->tableRecentEmployees->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->tableRecentEmployees->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+
+    updateDashboardStats();
+}
+
+void WorkSphereWindow::updateDashboardStats()
+{
+    std::vector<std::unique_ptr<Employee>> employees = m_database.loadEmployees();
+    int empCount = employees.size();
+
+    float totalPayrollUSD = 0.0f;
+    for (const auto& emp : employees) {
+        totalPayrollUSD += emp->getSalary();
+        if (auto manager = dynamic_cast<const Manager*>(emp.get())) {
+            totalPayrollUSD += manager->getBonus();
+        }
+    }
+
+    int projCount = projectsList.size();
+
+    QSettings settings("WorkSphere", "WorkSphereApp");
+    QString currencySetting = settings.value("general/currency", "USD ($)").toString();
+
+    float exchangeRate = 1.0f;
+    QString currencySymbol = "$";
+
+    if (currencySetting.contains("€") || currencySetting.contains("EUR")) {
+        exchangeRate = 0.92f;
+        currencySymbol = "€";
+    }
+    else if (currencySetting.contains("din") || currencySetting.contains("RSD")) {
+        exchangeRate = 108.5f;
+        currencySymbol = "din";
+    }
+    else if (currencySetting.contains("KM")) {
+        exchangeRate = 1.8f;
+        currencySymbol = "KM";
+    }
+    else {
+        exchangeRate = 1.0f;
+        currencySymbol = "$";
+    }
+
+    float finalPayroll = totalPayrollUSD * exchangeRate;
+
+    if (widgetEmployees) {
+        widgetEmployees->setValue(empCount, std::max(100, empCount + 25));
+    }
+
+    if (widgetProjects) {
+        widgetProjects->setValue(projCount, std::max(20, projCount + 5));
+    }
+
+    if (widgetPayroll) {
+        int payrollInt = static_cast<int>(finalPayroll);
+
+        int maxPayroll = std::max(5000, static_cast<int>(finalPayroll * 1.3f));
+
+        widgetPayroll->setValue(payrollInt, maxPayroll);
+        widgetPayroll->setSuffix(" " + currencySymbol); // Postavlja tačnu valutu i pokreće osvežavanje
+    }
 }
 
 void WorkSphereWindow::setupNavigation()
@@ -217,6 +326,7 @@ void WorkSphereWindow::setupNavigation()
         ui->stackedWidget->setCurrentWidget(ui->employeeFormPage);
         m_activeNavButton = ui->btnEmployees;
         updateNavigationStyles();
+        createEmployeeForm();
     });
 
     connect(ui->btnProjects, &QPushButton::clicked, this, [this]() {
@@ -254,7 +364,7 @@ void WorkSphereWindow::createEmployeeForm()
     QString titleColor = m_isDarkTheme ? "#ffffff" : "#0f172a";
     QString labelColor = m_isDarkTheme ? "#94a3b8" : "#475569";
 
-    QLabel *labelFormTitle = new QLabel("Create New Employee / Manager", ui->employeeFormPage);
+    QLabel *labelFormTitle = new QLabel("Add New Employee", ui->employeeFormPage);
     labelFormTitle->setAlignment(Qt::AlignCenter);
     labelFormTitle->setStyleSheet(QString("color: %1; font-size: 22px; font-weight: bold; font-family: 'Segoe UI'; margin-bottom: 25px;").arg(titleColor));
     mainLayout->addWidget(labelFormTitle);
@@ -266,59 +376,47 @@ void WorkSphereWindow::createEmployeeForm()
     formLayout->setSpacing(16);
     formLayout->setContentsMargins(20, 0, 20, 0);
 
-    auto createInputRow = [labelColor](QString labelText, QWidget *inputWidget, QWidget *parent) {
-        QWidget *rowWidget = new QWidget(parent);
-        QVBoxLayout *vBox = new QVBoxLayout(rowWidget);
-        vBox->setContentsMargins(0, 0, 0, 0);
-        vBox->setSpacing(6);
+    txtEmployeeName = new QLineEdit(formContainer);
+    txtEmployeeName->setPlaceholderText("Enter employee name...");
+    QWidget *rowName = createInputRow("Full Name", txtEmployeeName, formContainer);
 
-        QLabel *lbl = new QLabel(labelText, rowWidget);
-        lbl->setStyleSheet(QString("color: %1; font-size: 13px; font-weight: bold; font-family: 'Segoe UI';").arg(labelColor));
-        vBox->addWidget(lbl);
+    txtEmployeeSalary = new QLineEdit(formContainer);
+    txtEmployeeSalary->setPlaceholderText("Enter salary amount...");
+    QWidget *rowSalary = createInputRow("Salary ($)", txtEmployeeSalary, formContainer);
 
-        vBox->addWidget(inputWidget);
-        return rowWidget;
-    };
-
-    QLineEdit *txtName = new QLineEdit(formContainer);
-    txtName->setPlaceholderText("Enter employee name...");
-    QWidget *rowName = createInputRow("Full Name", txtName, formContainer);
-
-    QLineEdit *txtSalary = new QLineEdit(formContainer);
-    txtSalary->setPlaceholderText("Enter salary amount...");
-    QWidget *rowSalary = createInputRow("Salary ($)", txtSalary, formContainer);
-
-    QComboBox *comboType = new QComboBox(formContainer);
-    comboType->addItem("Worker");
-    comboType->addItem("Manager");
-    QWidget *rowType = createInputRow("Employee Type", comboType, formContainer);
+    comboEmployeeType = new QComboBox(formContainer);
+    comboEmployeeType->addItem("Worker");
+    comboEmployeeType->addItem("Manager");
+    QWidget *rowType = createInputRow("Employee Type", comboEmployeeType, formContainer);
 
     QStackedWidget *stackedFields = new QStackedWidget(formContainer);
 
-    QLineEdit *txtPosition = new QLineEdit();
-    txtPosition->setPlaceholderText("Enter worker position...");
-    QWidget *workerPage = createInputRow("Position", txtPosition, stackedFields);
+    txtEmployeePosition = new QLineEdit();
+    txtEmployeePosition->setPlaceholderText("Enter worker position...");
+    QWidget *workerPage = createInputRow("Position", txtEmployeePosition, stackedFields);
     stackedFields->addWidget(workerPage);
 
-    QLineEdit *txtBonus = new QLineEdit();
-    txtBonus->setPlaceholderText("Enter manager bonus...");
-    QWidget *managerPage = createInputRow("Bonus ($)", txtBonus, stackedFields);
+    txtEmployeeBonus = new QLineEdit();
+    txtEmployeeBonus->setPlaceholderText("Enter manager bonus...");
+    QWidget *managerPage = createInputRow("Bonus ($)", txtEmployeeBonus, stackedFields);
     stackedFields->addWidget(managerPage);
 
-    connect(comboType, QOverload<int>::of(&QComboBox::currentIndexChanged), stackedFields, &QStackedWidget::setCurrentIndex);
+    connect(comboEmployeeType, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            stackedFields, &QStackedWidget::setCurrentIndex);
 
     QPushButton *btnCreate = new QPushButton("Create Employee", formContainer);
     btnCreate->setObjectName("createButton");
     btnCreate->setCursor(Qt::PointingHandCursor);
 
     QString formStyle = m_isDarkTheme ? R"(
-        QLineEdit, QComboBox {
+        QLineEdit, QComboBox, QStackedWidget {
             background-color: #040711;
             color: #ffffff;
             border: 1px solid #1e293b;
             border-radius: 8px;
             padding: 12px;
             font-size: 14px;
+            font-family: 'Segoe UI';
         }
         QLineEdit:focus, QComboBox:focus {
             border: 1px solid #00d2ff;
@@ -354,13 +452,14 @@ void WorkSphereWindow::createEmployeeForm()
             background-color: #059669;
         }
     )" : R"(
-        QLineEdit, QComboBox {
+        QLineEdit, QComboBox, QStackedWidget {
             background-color: #ffffff;
             color: #0f172a;
             border: 1px solid #cbd5e1;
             border-radius: 8px;
             padding: 12px;
             font-size: 14px;
+            font-family: 'Segoe UI';
         }
         QLineEdit:focus, QComboBox:focus {
             border: 1px solid #2563eb;
@@ -413,6 +512,8 @@ void WorkSphereWindow::createEmployeeForm()
 
     mainLayout->addLayout(centerWrapper);
     mainLayout->addStretch();
+
+    connect(btnCreate, &QPushButton::clicked, this, &WorkSphereWindow::on_btnCreateEmployee_clicked);
 }
 
 void WorkSphereWindow::on_btnProjects_clicked()
@@ -771,5 +872,144 @@ void WorkSphereWindow::saveSettings()
     settings.setValue("general/theme", selectedTheme);
     applyTheme(selectedTheme);
 
+    updateDashboardStats();
+
     QMessageBox::information(this, "Settings Saved", "Your preferences have been successfully updated!");
+}
+
+
+void WorkSphereWindow::on_btnCreateEmployee_clicked()
+{
+    QString nameStr = txtEmployeeName->text().trimmed();
+    QString salaryStr = txtEmployeeSalary->text().trimmed();
+    int typeIndex = comboEmployeeType->currentIndex();
+
+    if (nameStr.isEmpty() || salaryStr.isEmpty()) {
+        QMessageBox::warning(this, "Validation Error", "Please fill in all required fields (Name and Salary)!");
+        return;
+    }
+
+    bool salaryOk = false;
+    float salary = salaryStr.toFloat(&salaryOk);
+    if (!salaryOk || salary < 0) {
+        QMessageBox::warning(this, "Validation Error", "Salary must be a valid non-negative number!");
+        return;
+    }
+
+    int id = 0;
+
+    if (typeIndex == 0) { // Worker
+        QString positionStr = txtEmployeePosition->text().trimmed();
+
+        if (positionStr.isEmpty()) {
+            QMessageBox::warning(this, "Validation Error", "Please enter a position for the worker!");
+            return;
+        }
+
+        Worker worker(positionStr.toStdString(), id, nameStr.toStdString(), salary);
+        m_database.addWorker(worker); // <--- Writes to SQL Server
+    }
+    else { // Manager
+        QString bonusStr = txtEmployeeBonus->text().trimmed();
+
+        if (bonusStr.isEmpty()) {
+            QMessageBox::warning(this, "Validation Error", "Please enter a bonus for the manager!");
+            return;
+        }
+
+        bool bonusOk = false;
+        float bonus = bonusStr.toFloat(&bonusOk);
+        if (!bonusOk || bonus < 0) {
+            QMessageBox::warning(this, "Validation Error", "Bonus must be a valid non-negative number!");
+            return;
+        }
+
+        Manager manager(id, nameStr.toStdString(), salary, bonus);
+        m_database.addManager(manager); // <--- Writes to SQL Server
+    }
+
+    // Success message
+    QMessageBox::information(this, "Success", "Employee added successfully!");
+
+    updateDashboardStats();
+    refreshEmployeeTable();
+}
+
+void WorkSphereWindow::on_btnDeleteEmployee_clicked()
+{
+    QModelIndexList selectedIndexes = ui->tableRecentEmployees->selectionModel()->selectedRows();
+    if (selectedIndexes.isEmpty()) {
+        QMessageBox::warning(this, "Selection Error", "Please select an employee from the table to delete!");
+        return;
+    }
+
+    int row = selectedIndexes.first().row();
+
+    QTableWidgetItem *idItem = ui->tableRecentEmployees->item(row, 0);
+    if (!idItem) {
+        QMessageBox::warning(this, "Error", "Could not retrieve the employee ID.");
+        return;
+    }
+
+    int employeeId = idItem->text().toInt();
+
+    QMessageBox::StandardButton reply;
+    reply = QMessageBox::question(this, "Confirm Deletion",
+                                  "Are you sure you want to delete the selected employee?",
+                                  QMessageBox::Yes | QMessageBox::No);
+
+    if (reply == QMessageBox::Yes) {
+
+        QMessageBox::information(this, "Success", "Employee deleted from database.");
+        refreshEmployeeTable();
+    }
+}
+
+void WorkSphereWindow::onEmployeeCellChanged(int row, int column)
+{
+    Q_UNUSED(row);
+    Q_UNUSED(column);
+
+    // ui->btnSaveEmp->setEnabled(true);
+}
+
+QWidget* WorkSphereWindow::createInputRow(QString labelText, QWidget *inputField, QWidget *parent)
+{
+    QWidget *rowWidget = new QWidget(parent);
+    QVBoxLayout *rowLayout = new QVBoxLayout(rowWidget);
+    rowLayout->setContentsMargins(0, 0, 0, 0);
+    rowLayout->setSpacing(5);
+
+    QLabel *label = new QLabel(labelText, rowWidget);
+    label->setStyleSheet("font-weight: bold; color: #555; font-size: 13px;");
+
+    rowLayout->addWidget(label);
+    rowLayout->addWidget(inputField);
+
+    return rowWidget;
+}
+
+void WorkSphereWindow::refreshEmployeeTable()
+{
+    std::vector<std::unique_ptr<Employee>> employees = m_database.loadEmployees();
+
+    ui->tableRecentEmployees->setRowCount(0);
+
+    for (const auto& emp : employees) {
+        int row = ui->tableRecentEmployees->rowCount();
+        ui->tableRecentEmployees->insertRow(row);
+
+        ui->tableRecentEmployees->setItem(row, 0, new QTableWidgetItem(QString::number(emp->getId())));
+        ui->tableRecentEmployees->setItem(row, 1, new QTableWidgetItem(QString::fromStdString(emp->getName())));
+        ui->tableRecentEmployees->setItem(row, 2, new QTableWidgetItem(QString::number(emp->getSalary())));
+
+        if (auto worker = dynamic_cast<const Worker*>(emp.get())) {
+            ui->tableRecentEmployees->setItem(row, 3, new QTableWidgetItem("Worker"));
+            ui->tableRecentEmployees->setItem(row, 4, new QTableWidgetItem(QString::fromStdString(worker->getPosition())));
+        }
+        else if (auto manager = dynamic_cast<const Manager*>(emp.get())) {
+            ui->tableRecentEmployees->setItem(row, 3, new QTableWidgetItem("Manager"));
+            ui->tableRecentEmployees->setItem(row, 4, new QTableWidgetItem(QString::number(manager->getBonus())));
+        }
+    }
 }

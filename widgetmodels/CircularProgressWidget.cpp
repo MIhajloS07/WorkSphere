@@ -1,7 +1,7 @@
 #include "CircularProgressWidget.h"
 
 CircularProgressWidget::CircularProgressWidget(QString text, QColor col, QWidget *parent)
-    : QWidget(parent), value(0), maxValue(100), labelText(text), color(col) {
+    : QWidget(parent), value(0), maxValue(100), labelText(text), color(col), suffix("") {
     setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     setFixedSize(140, 140);
 }
@@ -26,12 +26,10 @@ void CircularProgressWidget::paintEvent(QPaintEvent *event)
 
     int penWidth = qMax(10, side / 10);
 
-    // 1. Crtanje pozadinskog luka
     QPen bgPen(QColor(30, 41, 59), penWidth, Qt::SolidLine, Qt::RoundCap);
     painter.setPen(bgPen);
     painter.drawArc(rect, 0, 360 * 16);
 
-    // 2. Crtanje popunjenog luka
     QPen progressPen(color, penWidth, Qt::SolidLine, Qt::RoundCap);
     painter.setPen(progressPen);
 
@@ -39,11 +37,23 @@ void CircularProgressWidget::paintEvent(QPaintEvent *event)
     int spanAngle = static_cast<int>(-(value / static_cast<double>(maxV)) * 360 * 16);
     painter.drawArc(rect, 90 * 16, spanAngle);
 
-    QFont font = painter.font();
-    font.setPixelSize(qMax(16, side / 4));
-    font.setBold(true);
-    painter.setFont(font);
+    QString displayText = QString::number(value) + suffix;
 
+    QFont font = painter.font();
+
+    int baseSize = side / 4;
+    if (displayText.length() > 6) {
+        baseSize = side / 5.5;
+    }
+    if (displayText.length() > 9) {
+        baseSize = side / 7;
+    }
+
+    int fontSize = qMax(10, baseSize);
+    font.setPixelSize(fontSize);
+    font.setBold(true);
+
+    painter.setFont(font);
     painter.setPen(color);
-    painter.drawText(rect, Qt::AlignCenter, QString::number(value));
+    painter.drawText(rect, Qt::AlignCenter, displayText);
 }
