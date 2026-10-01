@@ -9,7 +9,10 @@
 #include <QComboBox>
 #include <QPushButton>
 #include <QLayout>
+#include <QEvent>
+#include <QMouseEvent>
 #include <vector>
+
 #include "./models/Project.h"
 #include "./database/Database.h"
 #include "./widgetmodels/CircularProgressWidget.h"
@@ -28,6 +31,9 @@ public:
     explicit WorkSphereWindow(QWidget *parent = nullptr);
     ~WorkSphereWindow() override;
 
+protected:
+    bool eventFilter(QObject *watched, QEvent *event) override;
+
 private slots:
     void on_btnProjects_clicked();
     void on_btnSaveProject_clicked();
@@ -35,39 +41,61 @@ private slots:
     void on_btnCreateEmployee_clicked();
     void on_btnDeleteEmployee_clicked();
     void onEmployeeCellChanged(int row, int column);
+    void on_btnAddProject_clicked();
+    void on_btnCancelProject_clicked();
+    void on_editProject_clicked(int projectId);
+    void on_deleteProject_clicked(int projectId);
+
 private:
     void setupNavigation();
     void setupDashboard();
+    void setupProjectTable();
     void setupTimer();
+
     void createEmployeeForm();
     void createProjectForm();
     void createSettingsForm();
+
     void applyTheme(const QString &themeName);
     void updateNavigationStyles();
     void clearLayout(QLayout *layout);
+
     void loadEmployeesToTable();
     void refreshEmployeeTable();
+    void refreshProjectTable();
     void updateDashboardStats();
-    QWidget* createInputRow(QString labelText, QWidget *inputField, QWidget *parent = nullptr);
+
+    void addProjectActionButtons(int row, int projectId);
+
+    QWidget* createInputRow(const QString &labelText, QWidget *inputField, QWidget *parent = nullptr);
+    QWidget *actionWidget = nullptr;
+
     bool m_isDarkTheme = true;
     bool m_isLoadingData = false;
 
     QPushButton *m_activeNavButton = nullptr;
+
     QLineEdit *editProjectName = nullptr;
-    QLineEdit *searchEmployeeInput;
     QDateEdit *editProjectDeadline = nullptr;
-    std::vector<Project> projectsList;
+
+    QLineEdit *searchEmployeeInput = nullptr;
+    QLineEdit *searchProjectInput = nullptr;
+
     QComboBox *comboCurrency = nullptr;
     QComboBox *comboDateFormat = nullptr;
     QComboBox *comboTheme = nullptr;
+
     QLineEdit *txtEmployeeName = nullptr;
     QLineEdit *txtEmployeeSalary = nullptr;
     QComboBox *comboEmployeeType = nullptr;
     QLineEdit *txtEmployeePosition = nullptr;
     QLineEdit *txtEmployeeBonus = nullptr;
+
     CircularProgressWidget *widgetEmployees = nullptr;
     CircularProgressWidget *widgetProjects = nullptr;
     CircularProgressWidget *widgetPayroll = nullptr;
+
+    std::vector<Project> projectsList;
     Database m_database;
 
     Ui::WorkSphereWindow *ui = nullptr;

@@ -14,7 +14,13 @@
 #include <QHeaderView>
 #include <QMessageBox>
 #include <QSettings>
+#include <QMenu>
 #include <QRandomGenerator>
+#include <QAction>
+#include <QMouseEvent>
+#include <QHeaderView>
+#include <QSqlQuery>
+#include <QSqlError>
 
 WorkSphereWindow::WorkSphereWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -24,6 +30,7 @@ WorkSphereWindow::WorkSphereWindow(QWidget *parent)
     ui->setupUi(this);
 
     refreshEmployeeTable();
+    refreshProjectTable();
     setupDashboard();
     setupNavigation();
     setupTimer();
@@ -54,22 +61,44 @@ WorkSphereWindow::WorkSphereWindow(QWidget *parent)
         "QLineEdit {"
         "   background-color: #0f172a;"
         "   color: #ffffff;"
+        "   padding: 8px 10px;"
+        "   border-radius: 6px;"
         "   border: 1px solid #1e293b;"
-        "   border-radius: 8px;"
-        "   padding: 8px 12px;"
         "   font-family: 'Segoe UI';"
-        "   font-size: 14px;"
         "}"
         "QLineEdit:focus {"
         "   border: 1px solid #38bdf8;"
         "}"
-    );
+        );
+
+    QString searchStyle =
+        "QLineEdit {"
+        "   background-color: #0f172a;"
+        "   color: #ffffff;"
+        "   padding: 8px 10px;"
+        "   border-radius: 6px;"
+        "   border: 1px solid #1e293b;"
+        "   font-family: 'Segoe UI';"
+        "}"
+        "QLineEdit:focus {"
+        "   border: 1px solid #38bdf8;"
+        "}";
+
+    searchProjectInput = new QLineEdit(this);
+    searchProjectInput->setPlaceholderText("Search projects by name...");
+    searchProjectInput->setStyleSheet(searchStyle);
+
+    QHBoxLayout *searchLayout = new QHBoxLayout();
+    searchLayout->setSpacing(15);
+    searchLayout->setContentsMargins(0, 0, 0, 0);
+    searchLayout->addWidget(searchEmployeeInput);
+    searchLayout->addWidget(searchProjectInput);
 
     QVBoxLayout *dashLayout = qobject_cast<QVBoxLayout*>(ui->dashboardPage->layout());
     if (dashLayout) {
         int index = dashLayout->indexOf(ui->tableRecentEmployees);
         if (index != -1) {
-            dashLayout->insertWidget(index, searchEmployeeInput);
+            dashLayout->insertLayout(index, searchLayout);
         }
     }
 
@@ -92,7 +121,71 @@ WorkSphereWindow::WorkSphereWindow(QWidget *parent)
             table->setRowHidden(row, !match);
         }
     });
+
+    connect(searchProjectInput, &QLineEdit::textChanged, this, [this](const QString &text) {
+        QString filter = text.trimmed().toLower();
+        QTableWidget *table = ui->tableRecentProjects;
+
+        for (int row = 0; row < table->rowCount(); ++row) {
+            bool match = false;
+            QTableWidgetItem *idItem = table->item(row, 0);
+            QTableWidgetItem *nameItem = table->item(row, 1);
+            QTableWidgetItem *clientItem = table->item(row, 2);
+            if (idItem && idItem->text().toLower().contains(filter)) {
+                match = true;
+            }
+            if (nameItem && nameItem->text().toLower().contains(filter)) {
+                match = true;
+            }
+            if (clientItem && clientItem->text().toLower().contains(filter)) {
+                match = true;
+            }
+
+            table->setRowHidden(row, !match);
+        }
+    });
+
+    ui->tableRecentEmployees->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->tableRecentEmployees->setSelectionMode(QAbstractItemView::SingleSelection);
+
+    actionWidget = new QWidget(this);
+    QHBoxLayout *actionLayout = new QHBoxLayout(actionWidget);
+    actionLayout->setContentsMargins(0, 10, 0, 0);
+
+    QPushButton *btnEdit = new QPushButton("Edit", this);
+    QPushButton *btnDelete = new QPushButton("Delete", this);
+
+    QString btnEditStyle = "QPushButton { background-color: #3b82f6; color: white; border-radius: 6px; padding: 8px 20px; font-weight: bold; font-family: 'Segoe UI'; }"
+                           "QPushButton:hover { background-color: #2563eb; }";
+    btnEdit->setStyleSheet(btnEditStyle);
+    btnEdit->setCursor(Qt::PointingHandCursor);
+
+    QString btnDeleteStyle = "QPushButton { background-color: #ef4444; color: white; border-radius: 6px; padding: 8px 20px; font-weight: bold; font-family: 'Segoe UI'; }"
+                             "QPushButton:hover { background-color: #dc2626; }";
+    btnDelete->setStyleSheet(btnDeleteStyle);
+    btnDelete->setCursor(Qt::PointingHandCursor);
+
+    actionLayout->addWidget(btnEdit);
+    actionLayout->addWidget(btnDelete);
+    actionLayout->addStretch();
+
+    ui->verticalLayoutDashboard->addWidget(actionWidget);
+
+    actionWidget->setVisible(false);
+
+    connect(ui->tableRecentEmployees, &QTableWidget::itemSelectionChanged, this, [this]() {
+        bool isSelected = !ui->tableRecentEmployees->selectedItems().isEmpty();
+        if (actionWidget) {
+            actionWidget->setVisible(isSelected);
+        }
+    });
+
+    connect(btnDelete, &QPushButton::clicked, this, &WorkSphereWindow::on_btnDeleteEmployee_clicked);
+
+    ui->tableRecentEmployees->viewport()->installEventFilter(this);
+    ui->dashboardPage->installEventFilter(this);
 }
+
 
 WorkSphereWindow::~WorkSphereWindow()
 {
@@ -191,6 +284,37 @@ void WorkSphereWindow::applyTheme(const QString &themeName)
     }
 }
 
+bool WorkSphereWindow::eventFilter(QObject *watched, QEvent *event)
+{
+    if (event->type() == QEvent::MouseButtonPress) {
+        QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
+        if (watched == ui->tableRecentEmployees->viewport()) {
+            QModelIndex index = ui->tableRecentEmployees->indexAt(mouseEvent->pos());
+
+            if (!index.isValid()) {
+                ui->tableRecentEmployees->clearSelection();
+                return true;
+            }
+
+            if (ui->tableRecentEmployees->selectionModel()->isSelected(index)) {
+                ui->tableRecentEmployees->clearSelection();
+                return true;
+            }
+        }
+        if (watched == ui->dashboardPage) {
+            QWidget *child = ui->dashboardPage->childAt(mouseEvent->pos());
+
+            bool clickedOnTable = (child == ui->tableRecentEmployees || ui->tableRecentEmployees->isAncestorOf(child));
+            bool clickedOnActions = (actionWidget && (child == actionWidget || actionWidget->isAncestorOf(child)));
+
+            if (!clickedOnTable && !clickedOnActions) {
+                ui->tableRecentEmployees->clearSelection();
+            }
+        }
+    }
+    return QMainWindow::eventFilter(watched, event);
+}
+
 void WorkSphereWindow::updateNavigationStyles()
 {
     if (!m_activeNavButton) {
@@ -249,6 +373,8 @@ void WorkSphereWindow::setupDashboard()
     widgetPayroll   = createExpandedWidget("Payroll", QColor(99, 102, 241), 0, 5000, ui->lblValuePayroll, ui->verticalLayoutCard3);
 
     ui->tableRecentEmployees->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+    ui->tableRecentEmployees->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+    ui->tableRecentProjects->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->tableRecentEmployees->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
     updateDashboardStats();
@@ -681,12 +807,22 @@ void WorkSphereWindow::on_btnSaveProject_clicked()
         return;
     }
 
-    projectsList.emplace_back(name, deadline);
+    QSqlQuery query;
+    query.prepare("INSERT INTO Projects (Name, Deadline) VALUES (:name, :deadline)");
+    query.bindValue(":name", QString::fromStdString(name));
+    query.bindValue(":deadline", deadline);
+
+    if (!query.exec()) {
+        QMessageBox::critical(this, "Database Error", "Failed to add project to database.");
+        return;
+    }
 
     QMessageBox::information(this, "Success", "Project successfully added!");
 
     editProjectName->clear();
     editProjectDeadline->setDate(QDate::currentDate().addMonths(1));
+
+    refreshProjectTable();
 }
 
 void WorkSphereWindow::createSettingsForm()
@@ -959,9 +1095,19 @@ void WorkSphereWindow::on_btnDeleteEmployee_clicked()
                                   QMessageBox::Yes | QMessageBox::No);
 
     if (reply == QMessageBox::Yes) {
+        try {
+            m_database.removeEmployee(employeeId);
 
-        QMessageBox::information(this, "Success", "Employee deleted from database.");
-        refreshEmployeeTable();
+            QMessageBox::information(this, "Success", "Employee deleted from database.");
+            refreshEmployeeTable();
+            updateDashboardStats(); // Da se osveže i statistike na dashboard-u
+        }
+        catch (const std::exception& e) {
+            QMessageBox::critical(this, "Database Error", QString("Failed to delete employee: %1").arg(e.what()));
+        }
+        catch (...) {
+            QMessageBox::critical(this, "Database Error", "An unknown error occurred while deleting the employee.");
+        }
     }
 }
 
@@ -971,22 +1117,6 @@ void WorkSphereWindow::onEmployeeCellChanged(int row, int column)
     Q_UNUSED(column);
 
     // ui->btnSaveEmp->setEnabled(true);
-}
-
-QWidget* WorkSphereWindow::createInputRow(QString labelText, QWidget *inputField, QWidget *parent)
-{
-    QWidget *rowWidget = new QWidget(parent);
-    QVBoxLayout *rowLayout = new QVBoxLayout(rowWidget);
-    rowLayout->setContentsMargins(0, 0, 0, 0);
-    rowLayout->setSpacing(5);
-
-    QLabel *label = new QLabel(labelText, rowWidget);
-    label->setStyleSheet("font-weight: bold; color: #555; font-size: 13px;");
-
-    rowLayout->addWidget(label);
-    rowLayout->addWidget(inputField);
-
-    return rowWidget;
 }
 
 void WorkSphereWindow::refreshEmployeeTable()
@@ -1012,4 +1142,197 @@ void WorkSphereWindow::refreshEmployeeTable()
             ui->tableRecentEmployees->setItem(row, 4, new QTableWidgetItem(QString::number(manager->getBonus())));
         }
     }
+}
+
+void WorkSphereWindow::refreshProjectTable()
+{
+    projectsList.clear();
+    ui->tableRecentProjects->setRowCount(0);
+    if (ui->tableProjects) {
+        ui->tableProjects->setRowCount(0);
+    }
+
+    // Load configured date format
+    QSettings settings("WorkSphere", "WorkSphereApp");
+    QString dateFormat = settings.value("general/dateFormat", "dd.MM.yyyy").toString();
+
+    QSqlQuery query("SELECT Name, Deadline FROM Projects");
+    while (query.next()) {
+        std::string name = query.value(0).toString().toStdString();
+        QDate deadline = query.value(1).toDate();
+
+        projectsList.emplace_back(name, deadline);
+    }
+
+    int row = 0;
+    for (const auto &proj : projectsList) {
+        QString nameStr = QString::fromStdString(proj.getName());
+        QString deadlineStr = proj.getDeadline().toString(dateFormat);
+
+        ui->tableRecentProjects->insertRow(row);
+        ui->tableRecentProjects->setItem(row, 0, new QTableWidgetItem(nameStr));
+        ui->tableRecentProjects->setItem(row, 1, new QTableWidgetItem(deadlineStr));
+
+        if (ui->tableProjects) {
+            ui->tableProjects->insertRow(row);
+            ui->tableProjects->setItem(row, 0, new QTableWidgetItem(nameStr));
+            ui->tableProjects->setItem(row, 1, new QTableWidgetItem(deadlineStr));
+        }
+
+        row++;
+    }
+}
+
+void WorkSphereWindow::addProjectActionButtons(int row, int projectId)
+{
+    QWidget *actionWidget = new QWidget(this);
+    QHBoxLayout *layout = new QHBoxLayout(actionWidget);
+    layout->setContentsMargins(4, 2, 4, 2);
+    layout->setSpacing(6);
+
+    QPushButton *btnEdit = new QPushButton("Edit", actionWidget);
+    QPushButton *btnDelete = new QPushButton("Delete", actionWidget);
+
+    // Stilovi sa novim bojama specifičnim za projekte
+    btnEdit->setStyleSheet(
+        "QPushButton {"
+        "   background-color: #6C5CE7;" // Ljubičasta / Indigo za projekte
+        "   color: white;"
+        "   border: none;"
+        "   border-radius: 4px;"
+        "   padding: 4px 8px;"
+        "}"
+        "QPushButton:hover { background-color: #5A4AD1; }"
+        );
+
+    btnDelete->setStyleSheet(
+        "QPushButton {"
+        "   background-color: #E17055;" // Narandžasto-crvena za brisanje projekta
+        "   color: white;"
+        "   border: none;"
+        "   border-radius: 4px;"
+        "   padding: 4px 8px;"
+        "}"
+        "QPushButton:hover { background-color: #D15B40; }"
+        );
+
+    layout->addWidget(btnEdit);
+    layout->addWidget(btnDelete);
+    actionWidget->setLayout(layout);
+
+    ui->tableProjects->setCellWidget(row, 2, actionWidget);
+
+    connect(btnEdit, &QPushButton::clicked, this, [this, projectId]() {
+        on_editProject_clicked(projectId);
+    });
+
+    connect(btnDelete, &QPushButton::clicked, this, [this, projectId]() {
+        on_deleteProject_clicked(projectId);
+    });
+}
+
+void WorkSphereWindow::on_deleteProject_clicked(int projectId)
+{
+    QMessageBox::StandardButton confirm = QMessageBox::question(
+        this,
+        "Potvrda brisanja",
+        "Da li ste sigurni da želite da obrišete ovaj projekat?",
+        QMessageBox::Yes | QMessageBox::No
+        );
+
+    if (confirm == QMessageBox::Yes) {
+        QSqlQuery query;
+        query.prepare("DELETE FROM Projects WHERE Id = :id");
+        query.bindValue(":id", projectId);
+
+        if (query.exec()) {
+            QMessageBox::information(this, "Uspeh", "Projekat je uspešno obrisan!");
+            refreshProjectTable();
+        } else {
+            QMessageBox::critical(this, "Greška", "Greška pri brisanju projekta.");
+        }
+    }
+}
+
+void WorkSphereWindow::on_editProject_clicked(int projectId)
+{
+    // Dobavljanje trenutnih podataka iz baze
+    QSqlQuery query;
+    query.prepare("SELECT Name, Deadline FROM Projects WHERE Id = :id");
+    query.bindValue(":id", projectId);
+
+    if (!query.exec() || !query.next()) return;
+
+    QString currentName = query.value(0).toString();
+    QDate currentDeadline = query.value(1).toDate();
+
+    // Dijalog za izmenu
+    QDialog dialog(this);
+    dialog.setWindowTitle("Izmena Projekta");
+    QVBoxLayout *layout = new QVBoxLayout(&dialog);
+
+    QLineEdit *editName = new QLineEdit(currentName, &dialog);
+    QDateEdit *editDeadline = new QDateEdit(currentDeadline, &dialog);
+    editDeadline->setCalendarPopup(true);
+
+    QDialogButtonBox *buttonBox = new QDialogButtonBox(
+        QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog
+        );
+
+    layout->addWidget(new QLabel("Naziv projekta:"));
+    layout->addWidget(editName);
+    layout->addWidget(new QLabel("Rok (Deadline):"));
+    layout->addWidget(editDeadline);
+    layout->addWidget(buttonBox);
+
+    connect(buttonBox, &QDialogButtonBox::accepted, &dialog, &QDialog::accept);
+    connect(buttonBox, &QDialogButtonBox::rejected, &dialog, &QDialog::reject);
+
+    if (dialog.exec() == QDialog::Accepted) {
+        QString newName = editName->text().trimmed();
+        QDate newDeadline = editDeadline->date();
+
+        if (newName.isEmpty()) {
+            QMessageBox::warning(this, "Greška", "Naziv ne može biti prazan!");
+            return;
+        }
+
+        QSqlQuery updateQuery;
+        updateQuery.prepare("UPDATE Projects SET Name = :name, Deadline = :deadline WHERE Id = :id");
+        updateQuery.bindValue(":name", newName);
+        updateQuery.bindValue(":deadline", newDeadline);
+        updateQuery.bindValue(":id", projectId);
+
+        if (updateQuery.exec()) {
+            QMessageBox::information(this, "Uspeh", "Projekat uspešno izmenjen!");
+            refreshProjectTable();
+        } else {
+            QMessageBox::critical(this, "Greška", "Greška pri ažuriranju baze.");
+        }
+    }
+}
+
+void WorkSphereWindow::on_btnAddProject_clicked()
+{
+    // Logika za prelazak na formu ili dodavanje projekta
+}
+
+void WorkSphereWindow::on_btnCancelProject_clicked()
+{
+    // Logika za otkazivanje / povratak
+}
+
+QWidget* WorkSphereWindow::createInputRow(const QString &labelText, QWidget *inputField, QWidget *parent)
+{
+    QWidget *rowWidget = new QWidget(parent ? parent : this);
+    QHBoxLayout *layout = new QHBoxLayout(rowWidget);
+    layout->setContentsMargins(0, 0, 0, 0);
+
+    QLabel *label = new QLabel(labelText, rowWidget);
+    label->setMinimumWidth(120);
+
+    layout->addWidget(label);
+    layout->addWidget(inputField);
+
+    return rowWidget;
 }

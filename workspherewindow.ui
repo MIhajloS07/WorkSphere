@@ -51,13 +51,13 @@
         <number>25</number>
        </property>
        <property name="topMargin">
-        <number>30</number>
+        <number>25</number>
        </property>
        <property name="rightMargin">
         <number>25</number>
        </property>
        <property name="bottomMargin">
-        <number>30</number>
+        <number>25</number>
        </property>
        <item>
         <widget class="QLabel" name="labelAppName">
@@ -130,17 +130,17 @@
          </property>
          <property name="styleSheet">
           <string notr="true">
-            QPushButton {
-                background-color: #0f172a;
-                color: #ffffff;
-                border: none;
-                border-radius: 8px;
-                text-align: center;
-                padding: 14px;
-                font-family: 'Segoe UI';
-                font-size: 16px;
-                font-weight: bold;
-            }
+             QPushButton {
+                 background-color: #0f172a;
+                 color: #ffffff;
+                 border: none;
+                 border-radius: 8px;
+                 text-align: center;
+                 padding: 14px;
+                 font-family: 'Segoe UI';
+                 font-size: 16px;
+                 font-weight: bold;
+             }
           </string>
          </property>
         </widget>
@@ -152,20 +152,20 @@
          </property>
          <property name="styleSheet">
           <string notr="true">
-            QPushButton {
-                background-color: transparent;
-                color: #94a3b8;
-                border: none;
-                border-radius: 8px;
-                text-align: center;
-                padding: 14px;
-                font-family: 'Segoe UI';
-                font-size: 16px;
-            }
-            QPushButton:hover {
-                background-color: #0f172a;
-                color: #ffffff;
-            }
+             QPushButton {
+                 background-color: transparent;
+                 color: #94a3b8;
+                 border: none;
+                 border-radius: 8px;
+                 text-align: center;
+                 padding: 14px;
+                 font-family: 'Segoe UI';
+                 font-size: 16px;
+             }
+             QPushButton:hover {
+                 background-color: #0f172a;
+                 color: #ffffff;
+             }
           </string>
          </property>
         </widget>
@@ -177,20 +177,20 @@
          </property>
          <property name="styleSheet">
           <string notr="true">
-            QPushButton {
-                background-color: transparent;
-                color: #94a3b8;
-                border: none;
-                border-radius: 8px;
-                text-align: center;
-                padding: 14px;
-                font-family: 'Segoe UI';
-                font-size: 16px;
-            }
-            QPushButton:hover {
-                background-color: #0f172a;
-                color: #ffffff;
-            }
+             QPushButton {
+                 background-color: transparent;
+                 color: #94a3b8;
+                 border: none;
+                 border-radius: 8px;
+                 text-align: center;
+                 padding: 14px;
+                 font-family: 'Segoe UI';
+                 font-size: 16px;
+             }
+             QPushButton:hover {
+                 background-color: #0f172a;
+                 color: #ffffff;
+             }
           </string>
          </property>
         </widget>
@@ -228,18 +228,18 @@
          </property>
          <property name="styleSheet">
           <string notr="true">
-            QPushButton {
-                background-color: transparent;
-                color: #94a3b8;
-                border: none;
-                text-align: center;
-                padding: 12px;
-                font-family: 'Segoe UI';
-                font-size: 16px;
-            }
-            QPushButton:hover {
-                color: #ffffff;
-            }
+             QPushButton {
+                 background-color: transparent;
+                 color: #94a3b8;
+                 border: none;
+                 text-align: center;
+                 padding: 12px;
+                 font-family: 'Segoe UI';
+                 font-size: 16px;
+             }
+             QPushButton:hover {
+                 color: #ffffff;
+             }
           </string>
          </property>
         </widget>
@@ -256,19 +256,19 @@
       <widget class="QWidget" name="dashboardPage">
        <layout class="QVBoxLayout" name="verticalLayoutDashboard">
         <property name="leftMargin">
-         <number>35</number>
+         <number>30</number>
         </property>
         <property name="topMargin">
-         <number>15</number>
+         <number>10</number>
         </property>
         <property name="rightMargin">
-         <number>35</number>
+         <number>30</number>
         </property>
         <property name="bottomMargin">
-         <number>20</number>
+         <number>10</number>
         </property>
         <property name="spacing">
-         <number>10</number>
+         <number>8</number>
         </property>
         <item>
          <widget class="QLabel" name="labelDashboardTitle">
@@ -276,14 +276,14 @@
            <string>Dashboard</string>
           </property>
           <property name="styleSheet">
-           <string notr="true">color: #ffffff; font-size: 26px; font-weight: bold; font-family: 'Segoe UI';</string>
+           <string notr="true">color: #ffffff; font-size: 24px; font-weight: bold; font-family: 'Segoe UI';</string>
           </property>
          </widget>
         </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayoutCards">
           <property name="spacing">
-           <number>20</number>
+           <number>15</number>
           </property>
           <item>
            <widget class="QWidget" name="card1">
@@ -291,7 +291,7 @@
              <string notr="true">background-color: #0f172a; border-radius: 12px;</string>
             </property>
             <property name="minimumHeight">
-             <number>160</number>
+             <number>120</number>
             </property>
             <layout class="QVBoxLayout" name="verticalLayoutCard1">
              <item>
@@ -303,7 +303,7 @@
                 <set>Qt::AlignCenter</set>
                </property>
                <property name="styleSheet">
-                <string notr="true">color: #94a3b8; font-size: 15px; font-family: 'Segoe UI'; font-weight: bold;</string>
+                <string notr="true">color: #94a3b8; font-size: 14px; font-family: 'Segoe UI'; font-weight: bold;</string>
                </property>
               </widget>
              </item>
@@ -326,7 +326,7 @@
              <string notr="true">background-color: #0f172a; border-radius: 12px;</string>
             </property>
             <property name="minimumHeight">
-             <number>160</number>
+             <number>120</number>
             </property>
             <layout class="QVBoxLayout" name="verticalLayoutCard2">
              <item>
@@ -338,7 +338,7 @@
                 <set>Qt::AlignCenter</set>
                </property>
                <property name="styleSheet">
-                <string notr="true">color: #94a3b8; font-size: 15px; font-family: 'Segoe UI'; font-weight: bold;</string>
+                <string notr="true">color: #94a3b8; font-size: 14px; font-family: 'Segoe UI'; font-weight: bold;</string>
                </property>
               </widget>
              </item>
@@ -361,7 +361,7 @@
              <string notr="true">background-color: #0f172a; border-radius: 12px;</string>
             </property>
             <property name="minimumHeight">
-             <number>160</number>
+             <number>120</number>
             </property>
             <layout class="QVBoxLayout" name="verticalLayoutCard3">
              <item>
@@ -373,7 +373,7 @@
                 <set>Qt::AlignCenter</set>
                </property>
                <property name="styleSheet">
-                <string notr="true">color: #94a3b8; font-size: 15px; font-family: 'Segoe UI'; font-weight: bold;</string>
+                <string notr="true">color: #94a3b8; font-size: 14px; font-family: 'Segoe UI'; font-weight: bold;</string>
                </property>
               </widget>
              </item>
@@ -401,34 +401,45 @@
            <enum>QFrame::Sunken</enum>
           </property>
           <property name="styleSheet">
-           <string notr="true">color: #1e3a8a; background-color: #1e3a8a; max-height: 2px; margin-top: 15px; margin-bottom: 20px;</string>
+           <string notr="true">color: #1e3a8a; background-color: #1e3a8a; max-height: 2px; margin-top: 2px; margin-bottom: 2px;</string>
           </property>
          </widget>
         </item>
+
+        <!-- TABLICA ZAPOSLENIH -->
         <item>
          <widget class="QTableWidget" name="tableRecentEmployees">
-          <property name="maximumHeight">
-           <number>280</number>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>170</height>
+           </size>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
           </property>
           <property name="styleSheet">
            <string notr="true">
-            QTableWidget {
-                background-color: #0f172a;
-                color: #ffffff;
-                gridline-color: #1e293b;
-                border: 1px solid #1e293b;
-                border-radius: 10px;
-                selection-background-color: #334155;
-            }
-            QHeaderView::section {
-                background-color: #040711;
-                color: #94a3b8;
-                padding: 10px;
-                border: none;
-                font-weight: bold;
-                font-family: 'Segoe UI';
-                font-size: 13px;
-            }
+             QTableWidget {
+                 background-color: #0f172a;
+                 color: #ffffff;
+                 gridline-color: #1e293b;
+                 border: 1px solid #1e293b;
+                 border-radius: 10px;
+                 selection-background-color: #334155;
+             }
+             QHeaderView::section {
+                 background-color: #040711;
+                 color: #94a3b8;
+                 padding: 8px;
+                 border: none;
+                 font-weight: bold;
+                 font-family: 'Segoe UI';
+                 font-size: 13px;
+             }
            </string>
           </property>
           <column>
@@ -458,10 +469,90 @@
           </column>
          </widget>
         </item>
+
+        <!-- TABLICA PROJEKATA -->
+        <item>
+         <widget class="QTableWidget" name="tableRecentProjects">
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>170</height>
+           </size>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">
+             QTableWidget {
+                 background-color: #0f172a;
+                 color: #ffffff;
+                 gridline-color: #1e293b;
+                 border: 1px solid #1e293b;
+                 border-radius: 10px;
+                 selection-background-color: #334155;
+             }
+             QHeaderView::section {
+                 background-color: #040711;
+                 color: #94a3b8;
+                 padding: 8px;
+                 border: none;
+                 font-weight: bold;
+                 font-family: 'Segoe UI';
+                 font-size: 13px;
+             }
+           </string>
+          </property>
+          <column>
+           <property name="text">
+            <string>Id</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Project Name</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Client</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Status</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Budget</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+
+        <!-- SPACER -->
+        <item>
+         <spacer name="spacerDashboardBottom">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
        </layout>
       </widget>
 
-      <!-- EMPLOYEES PAGE (Added Table & View structure) -->
+      <!-- EMPLOYEES PAGE -->
       <widget class="QWidget" name="employeesPage">
        <layout class="QVBoxLayout" name="verticalLayoutEmployeesPage">
         <property name="leftMargin"><number>35</number></property>
@@ -482,23 +573,23 @@
          <widget class="QTableWidget" name="tableEmployees">
           <property name="styleSheet">
            <string notr="true">
-            QTableWidget {
-                background-color: #0f172a;
-                color: #ffffff;
-                gridline-color: #1e293b;
-                border: 1px solid #1e293b;
-                border-radius: 10px;
-                selection-background-color: #334155;
-            }
-            QHeaderView::section {
-                background-color: #040711;
-                color: #94a3b8;
-                padding: 10px;
-                border: none;
-                font-weight: bold;
-                font-family: 'Segoe UI';
-                font-size: 13px;
-            }
+             QTableWidget {
+                 background-color: #0f172a;
+                 color: #ffffff;
+                 gridline-color: #1e293b;
+                 border: 1px solid #1e293b;
+                 border-radius: 10px;
+                 selection-background-color: #334155;
+             }
+             QHeaderView::section {
+                 background-color: #040711;
+                 color: #94a3b8;
+                 padding: 10px;
+                 border: none;
+                 font-weight: bold;
+                 font-family: 'Segoe UI';
+                 font-size: 13px;
+             }
            </string>
           </property>
           <column><property name="text"><string>Id</string></property></column>
@@ -511,7 +602,7 @@
        </layout>
       </widget>
 
-      <!-- PROJECTS PAGE (Added) -->
+      <!-- PROJECTS PAGE -->
       <widget class="QWidget" name="projectsPage">
        <layout class="QVBoxLayout" name="verticalLayoutProjectsPage">
         <property name="leftMargin"><number>35</number></property>
@@ -532,23 +623,23 @@
          <widget class="QTableWidget" name="tableProjects">
           <property name="styleSheet">
            <string notr="true">
-            QTableWidget {
-                background-color: #0f172a;
-                color: #ffffff;
-                gridline-color: #1e293b;
-                border: 1px solid #1e293b;
-                border-radius: 10px;
-                selection-background-color: #334155;
-            }
-            QHeaderView::section {
-                background-color: #040711;
-                color: #94a3b8;
-                padding: 10px;
-                border: none;
-                font-weight: bold;
-                font-family: 'Segoe UI';
-                font-size: 13px;
-            }
+             QTableWidget {
+                 background-color: #0f172a;
+                 color: #ffffff;
+                 gridline-color: #1e293b;
+                 border: 1px solid #1e293b;
+                 border-radius: 10px;
+                 selection-background-color: #334155;
+             }
+             QHeaderView::section {
+                 background-color: #040711;
+                 color: #94a3b8;
+                 padding: 10px;
+                 border: none;
+                 font-weight: bold;
+                 font-family: 'Segoe UI';
+                 font-size: 13px;
+             }
            </string>
           </property>
           <column><property name="text"><string>Id</string></property></column>
@@ -564,84 +655,44 @@
       <!-- EMPLOYEE FORM PAGE -->
       <widget class="QWidget" name="employeeFormPage">
        <layout class="QVBoxLayout" name="verticalLayoutEmployeeFormPage">
-        <property name="leftMargin">
-         <number>40</number>
-        </property>
-        <property name="topMargin">
-         <number>30</number>
-        </property>
-        <property name="rightMargin">
-         <number>40</number>
-        </property>
-        <property name="bottomMargin">
-         <number>30</number>
-        </property>
+        <property name="leftMargin"><number>40</number></property>
+        <property name="topMargin"><number>30</number></property>
+        <property name="rightMargin"><number>40</number></property>
+        <property name="bottomMargin"><number>30</number></property>
         <item>
          <spacer name="spacerFormTop">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
+          <property name="orientation"><enum>Qt::Vertical</enum></property>
+          <property name="sizeHint" stdset="0"><size><width>20</width><height>40</height></size></property>
          </spacer>
         </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayoutFormWrapper">
           <item>
            <spacer name="spacerFormLeft">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
+            <property name="orientation"><enum>Qt::Horizontal</enum></property>
+            <property name="sizeHint" stdset="0"><size><width>40</width><height>20</height></size></property>
            </spacer>
           </item>
           <item>
            <widget class="QWidget" name="formContainerWidget">
-            <property name="maximumWidth">
-             <number>520</number>
-            </property>
+            <property name="maximumWidth"><number>520</number></property>
             <layout class="QVBoxLayout" name="verticalLayoutFormContent">
-             <property name="spacing">
-              <number>15</number>
-             </property>
+             <property name="spacing"><number>15</number></property>
             </layout>
            </widget>
           </item>
           <item>
            <spacer name="spacerFormRight">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
+            <property name="orientation"><enum>Qt::Horizontal</enum></property>
+            <property name="sizeHint" stdset="0"><size><width>40</width><height>20</height></size></property>
            </spacer>
           </item>
          </layout>
         </item>
         <item>
          <spacer name="spacerFormBottom">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>60</height>
-           </size>
-          </property>
+          <property name="orientation"><enum>Qt::Vertical</enum></property>
+          <property name="sizeHint" stdset="0"><size><width>20</width><height>60</height></size></property>
          </spacer>
         </item>
        </layout>
@@ -650,84 +701,44 @@
       <!-- PROJECT FORM PAGE -->
       <widget class="QWidget" name="projectFormPage">
        <layout class="QVBoxLayout" name="verticalLayoutProjectFormPage">
-        <property name="leftMargin">
-         <number>40</number>
-        </property>
-        <property name="topMargin">
-         <number>30</number>
-        </property>
-        <property name="rightMargin">
-         <number>40</number>
-        </property>
-        <property name="bottomMargin">
-         <number>30</number>
-        </property>
+        <property name="leftMargin"><number>40</number></property>
+        <property name="topMargin"><number>30</number></property>
+        <property name="rightMargin"><number>40</number></property>
+        <property name="bottomMargin"><number>30</number></property>
         <item>
          <spacer name="spacerProjectFormTop">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
+          <property name="orientation"><enum>Qt::Vertical</enum></property>
+          <property name="sizeHint" stdset="0"><size><width>20</width><height>40</height></size></property>
          </spacer>
         </item>
         <item>
          <layout class="QHBoxLayout" name="horizontalLayoutProjectFormWrapper">
           <item>
            <spacer name="spacerProjectFormLeft">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
+            <property name="orientation"><enum>Qt::Horizontal</enum></property>
+            <property name="sizeHint" stdset="0"><size><width>40</width><height>20</height></size></property>
            </spacer>
           </item>
           <item>
            <widget class="QWidget" name="projectFormContainerWidget">
-            <property name="maximumWidth">
-             <number>520</number>
-            </property>
+            <property name="maximumWidth"><number>520</number></property>
             <layout class="QVBoxLayout" name="verticalLayoutProjectFormContent">
-             <property name="spacing">
-              <number>15</number>
-             </property>
+             <property name="spacing"><number>15</number></property>
             </layout>
            </widget>
           </item>
           <item>
            <spacer name="spacerProjectFormRight">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
+            <property name="orientation"><enum>Qt::Horizontal</enum></property>
+            <property name="sizeHint" stdset="0"><size><width>40</width><height>20</height></size></property>
            </spacer>
           </item>
          </layout>
         </item>
         <item>
          <spacer name="spacerProjectFormBottom">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>60</height>
-           </size>
-          </property>
+          <property name="orientation"><enum>Qt::Vertical</enum></property>
+          <property name="sizeHint" stdset="0"><size><width>20</width><height>60</height></size></property>
          </spacer>
         </item>
        </layout>
@@ -736,18 +747,10 @@
       <!-- SETTINGS PAGE -->
       <widget class="QWidget" name="settingsPage">
        <layout class="QVBoxLayout" name="verticalLayoutSettingsPage">
-        <property name="leftMargin">
-         <number>40</number>
-        </property>
-        <property name="topMargin">
-         <number>30</number>
-        </property>
-        <property name="rightMargin">
-         <number>40</number>
-        </property>
-        <property name="bottomMargin">
-         <number>30</number>
-        </property>
+        <property name="leftMargin"><number>40</number></property>
+        <property name="topMargin"><number>30</number></property>
+        <property name="rightMargin"><number>40</number></property>
+        <property name="bottomMargin"><number>30</number></property>
        </layout>
       </widget>
 

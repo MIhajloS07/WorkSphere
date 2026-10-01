@@ -6,11 +6,10 @@
 #include <QDate>
 
 class Project {
-private:
+protected:
     std::string name;
     QDate deadline;
     std::vector<Employee*> employeesOnProject;
-
 public:
     Project(std::string name, QDate deadline);
 
