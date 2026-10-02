@@ -211,3 +211,57 @@ std::vector<std::unique_ptr<Project>> Database::loadProjects() {
     }
     return projects;
 }
+
+void Database::updateEmployee(const Employee& employee) {
+    try {
+        QSqlQuery query(db);
+
+        // Provjeravamo da li je u pitanju Menadžer ili Radnik
+        if (auto manager = dynamic_cast<const Manager*>(&employee)) {
+            query.prepare("EXEC dbo.UpdateManager ?, ?, ?, ?");
+            query.bindValue(0, manager->getId());
+            query.bindValue(1, QString::fromStdString(manager->getName()));
+            query.bindValue(2, manager->getSalary());
+            query.bindValue(3, manager->getBonus());
+        }
+        else if (auto worker = dynamic_cast<const Worker*>(&employee)) {
+            query.prepare("EXEC dbo.UpdateWorker ?, ?, ?, ?");
+            query.bindValue(0, worker->getId());
+            query.bindValue(1, QString::fromStdString(worker->getName()));
+            query.bindValue(2, worker->getSalary());
+            query.bindValue(3, QString::fromStdString(worker->getPosition()));
+        }
+
+        if (!query.exec()) {
+            throw std::runtime_error(
+                "Error updating employee: " +
+                query.lastError().text().toStdString()
+                );
+        }
+    }
+    catch (const std::exception& e) {
+        std::cerr << "Error updating employee: " << e.what() << std::endl;
+        throw; // Prosljeđujemo grešku dalje ka UI-ju kako bi QMessageBox mogao da je prikaže
+    }
+}
+
+void Database::updateProject(int id, const std::string& name, const QDate& deadline) {
+    try {
+        QSqlQuery query(db);
+        query.prepare("EXEC dbo.UpdateProject ?, ?, ?");
+        query.bindValue(0, id);
+        query.bindValue(1, QString::fromStdString(name));
+        query.bindValue(2, deadline);
+
+        if (!query.exec()) {
+            throw std::runtime_error(
+                "Error updating project: " +
+                query.lastError().text().toStdString()
+                );
+        }
+    }
+    catch (const std::exception& e) {
+        std::cerr << "Error updating project: " << e.what() << std::endl;
+        throw;
+    }
+}

@@ -18,9 +18,9 @@
 #include <QRandomGenerator>
 #include <QAction>
 #include <QMouseEvent>
-#include <QHeaderView>
 #include <QSqlQuery>
 #include <QSqlError>
+#include <QDialogButtonBox>
 
 WorkSphereWindow::WorkSphereWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -35,6 +35,28 @@ WorkSphereWindow::WorkSphereWindow(QWidget *parent)
     setupNavigation();
     setupTimer();
 
+    // 1. CREATE SEARCH INPUTS
+    searchEmployeeInput = new QLineEdit(this);
+    searchEmployeeInput->setPlaceholderText("Search employees by ID or name...");
+
+    searchProjectInput = new QLineEdit(this);
+    searchProjectInput->setPlaceholderText("Search projects by name...");
+
+    QHBoxLayout *searchLayout = new QHBoxLayout();
+    searchLayout->setSpacing(15);
+    searchLayout->setContentsMargins(0, 0, 0, 0);
+    searchLayout->addWidget(searchEmployeeInput);
+    searchLayout->addWidget(searchProjectInput);
+
+    QVBoxLayout *dashLayout = qobject_cast<QVBoxLayout*>(ui->dashboardPage->layout());
+    if (dashLayout) {
+        int index = dashLayout->indexOf(ui->tableRecentEmployees);
+        if (index != -1) {
+            dashLayout->insertLayout(index, searchLayout);
+        }
+    }
+
+    // 2. APPLY SAVED THEME
     QSettings settings("WorkSphere", "WorkSphereApp");
     QString savedTheme = settings.value("general/theme", "Dark Theme (Default)").toString();
     applyTheme(savedTheme);
@@ -55,53 +77,7 @@ WorkSphereWindow::WorkSphereWindow(QWidget *parent)
         ui->labelLogoIcon->setPixmap(scaledLogo);
     }
 
-    searchEmployeeInput = new QLineEdit(this);
-    searchEmployeeInput->setPlaceholderText("Search employees by ID or name...");
-    searchEmployeeInput->setStyleSheet(
-        "QLineEdit {"
-        "   background-color: #0f172a;"
-        "   color: #ffffff;"
-        "   padding: 8px 10px;"
-        "   border-radius: 6px;"
-        "   border: 1px solid #1e293b;"
-        "   font-family: 'Segoe UI';"
-        "}"
-        "QLineEdit:focus {"
-        "   border: 1px solid #38bdf8;"
-        "}"
-        );
-
-    QString searchStyle =
-        "QLineEdit {"
-        "   background-color: #0f172a;"
-        "   color: #ffffff;"
-        "   padding: 8px 10px;"
-        "   border-radius: 6px;"
-        "   border: 1px solid #1e293b;"
-        "   font-family: 'Segoe UI';"
-        "}"
-        "QLineEdit:focus {"
-        "   border: 1px solid #38bdf8;"
-        "}";
-
-    searchProjectInput = new QLineEdit(this);
-    searchProjectInput->setPlaceholderText("Search projects by name...");
-    searchProjectInput->setStyleSheet(searchStyle);
-
-    QHBoxLayout *searchLayout = new QHBoxLayout();
-    searchLayout->setSpacing(15);
-    searchLayout->setContentsMargins(0, 0, 0, 0);
-    searchLayout->addWidget(searchEmployeeInput);
-    searchLayout->addWidget(searchProjectInput);
-
-    QVBoxLayout *dashLayout = qobject_cast<QVBoxLayout*>(ui->dashboardPage->layout());
-    if (dashLayout) {
-        int index = dashLayout->indexOf(ui->tableRecentEmployees);
-        if (index != -1) {
-            dashLayout->insertLayout(index, searchLayout);
-        }
-    }
-
+    // SEARCH CONNECTIONS
     connect(searchEmployeeInput, &QLineEdit::textChanged, this, [this](const QString &text) {
         QString filter = text.trimmed().toLower();
         QTableWidget *table = ui->tableRecentEmployees;
@@ -145,47 +121,106 @@ WorkSphereWindow::WorkSphereWindow(QWidget *parent)
         }
     });
 
+    // COMMON BUTTON STYLES
+    QString btnEditStyle = "QPushButton { background-color: #3b82f6; color: white; border-radius: 6px; padding: 8px 20px; font-weight: bold; font-family: 'Segoe UI'; }"
+                           "QPushButton:hover { background-color: #2563eb; }";
+    QString btnDeleteStyle = "QPushButton { background-color: #ef4444; color: white; border-radius: 6px; padding: 8px 20px; font-weight: bold; font-family: 'Segoe UI'; }"
+                             "QPushButton:hover { background-color: #dc2626; }";
+
+    // --- EMPLOYEE TABLE SETUP ---
     ui->tableRecentEmployees->setSelectionBehavior(QAbstractItemView::SelectRows);
     ui->tableRecentEmployees->setSelectionMode(QAbstractItemView::SingleSelection);
 
     actionWidget = new QWidget(this);
     QHBoxLayout *actionLayout = new QHBoxLayout(actionWidget);
-    actionLayout->setContentsMargins(0, 10, 0, 0);
+    actionLayout->setContentsMargins(0, 10, 0, 10);
 
-    QPushButton *btnEdit = new QPushButton("Edit", this);
-    QPushButton *btnDelete = new QPushButton("Delete", this);
+    QPushButton *btnEditEmp = new QPushButton("Edit", this);
+    QPushButton *btnDeleteEmp = new QPushButton("Delete", this);
 
-    QString btnEditStyle = "QPushButton { background-color: #3b82f6; color: white; border-radius: 6px; padding: 8px 20px; font-weight: bold; font-family: 'Segoe UI'; }"
-                           "QPushButton:hover { background-color: #2563eb; }";
-    btnEdit->setStyleSheet(btnEditStyle);
-    btnEdit->setCursor(Qt::PointingHandCursor);
+    btnEditEmp->setStyleSheet(btnEditStyle);
+    btnEditEmp->setCursor(Qt::PointingHandCursor);
 
-    QString btnDeleteStyle = "QPushButton { background-color: #ef4444; color: white; border-radius: 6px; padding: 8px 20px; font-weight: bold; font-family: 'Segoe UI'; }"
-                             "QPushButton:hover { background-color: #dc2626; }";
-    btnDelete->setStyleSheet(btnDeleteStyle);
-    btnDelete->setCursor(Qt::PointingHandCursor);
+    btnDeleteEmp->setStyleSheet(btnDeleteStyle);
+    btnDeleteEmp->setCursor(Qt::PointingHandCursor);
 
-    actionLayout->addWidget(btnEdit);
-    actionLayout->addWidget(btnDelete);
+    actionLayout->addWidget(btnEditEmp);
+    actionLayout->addWidget(btnDeleteEmp);
     actionLayout->addStretch();
 
+    actionWidget->setFixedHeight(50);
     ui->verticalLayoutDashboard->addWidget(actionWidget);
-
     actionWidget->setVisible(false);
 
-    connect(ui->tableRecentEmployees, &QTableWidget::itemSelectionChanged, this, [this]() {
-        bool isSelected = !ui->tableRecentEmployees->selectedItems().isEmpty();
+    // --- PROJECT TABLE SETUP ---
+    ui->tableRecentProjects->setSelectionBehavior(QAbstractItemView::SelectRows);
+    ui->tableRecentProjects->setSelectionMode(QAbstractItemView::SingleSelection);
+
+    QWidget *projectActionWidget = new QWidget(this);
+    QHBoxLayout *projActionLayout = new QHBoxLayout(projectActionWidget);
+    projActionLayout->setContentsMargins(0, 10, 0, 10);
+
+    QPushButton *btnEditProj = new QPushButton("Edit Project", this);
+    QPushButton *btnDeleteProj = new QPushButton("Delete Project", this);
+
+    btnEditProj->setStyleSheet(btnEditStyle);
+    btnEditProj->setCursor(Qt::PointingHandCursor);
+
+    btnDeleteProj->setStyleSheet(btnDeleteStyle);
+    btnDeleteProj->setCursor(Qt::PointingHandCursor);
+
+    projActionLayout->addWidget(btnEditProj);
+    projActionLayout->addWidget(btnDeleteProj);
+    projActionLayout->addStretch();
+
+    projectActionWidget->setFixedHeight(50);
+    ui->verticalLayoutDashboard->addWidget(projectActionWidget);
+    projectActionWidget->setVisible(false);
+
+    // MUTUAL EXCLUSION SELECTION LOGIC
+    connect(ui->tableRecentEmployees, &QTableWidget::itemSelectionChanged, this, [this, projectActionWidget]() {
+        bool hasEmpSelection = !ui->tableRecentEmployees->selectedItems().isEmpty();
+
+        if (hasEmpSelection) {
+            ui->tableRecentProjects->blockSignals(true);
+            ui->tableRecentProjects->clearSelection();
+            ui->tableRecentProjects->blockSignals(false);
+            if (projectActionWidget) projectActionWidget->setVisible(false);
+        }
+
         if (actionWidget) {
-            actionWidget->setVisible(isSelected);
+            actionWidget->setVisible(hasEmpSelection);
         }
     });
 
-    connect(btnDelete, &QPushButton::clicked, this, &WorkSphereWindow::on_btnDeleteEmployee_clicked);
+    connect(ui->tableRecentProjects, &QTableWidget::itemSelectionChanged, this, [this, projectActionWidget]() {
+        bool hasProjSelection = !ui->tableRecentProjects->selectedItems().isEmpty();
 
+        if (hasProjSelection) {
+            ui->tableRecentEmployees->blockSignals(true);
+            ui->tableRecentEmployees->clearSelection();
+            ui->tableRecentEmployees->blockSignals(false);
+            if (actionWidget) actionWidget->setVisible(false);
+        }
+
+        if (projectActionWidget) {
+            projectActionWidget->setVisible(hasProjSelection);
+        }
+
+        onProjectSelectionChanged();
+    });
+
+    // CONNECT BUTTON ACTIONS
+    connect(btnEditEmp, &QPushButton::clicked, this, &WorkSphereWindow::on_btnEditEmployee_clicked);
+    connect(btnDeleteEmp, &QPushButton::clicked, this, &WorkSphereWindow::on_btnDeleteEmployee_clicked);
+    connect(btnEditProj, &QPushButton::clicked, this, &WorkSphereWindow::on_btnEditProject_clicked);
+    connect(btnDeleteProj, &QPushButton::clicked, this, &WorkSphereWindow::on_btnDeleteProject_clicked);
+
+    // MOUNT EVENT FILTERS FOR DESELECTION ON CLICK OUTSIDE
     ui->tableRecentEmployees->viewport()->installEventFilter(this);
+    ui->tableRecentProjects->viewport()->installEventFilter(this);
     ui->dashboardPage->installEventFilter(this);
 }
-
 
 WorkSphereWindow::~WorkSphereWindow()
 {
@@ -211,20 +246,42 @@ void WorkSphereWindow::applyTheme(const QString &themeName)
 {
     m_isDarkTheme = !themeName.contains("Light", Qt::CaseInsensitive);
 
-    QString mainBgColor, textColor, cardBgColor, cardBorderColor, tableHeaderBg;
+    QString mainBgColor, textColor, cardBgColor, cardBorderColor;
+    QString tableBg, tableHeaderBg, tableHeaderTextColor, tableBorder, tableSelectedBg, tableSelectedText;
+    QString inputBg, inputBorder, inputFocusBorder;
 
     if (m_isDarkTheme) {
         mainBgColor = "#090d16";
         textColor = "#ffffff";
         cardBgColor = "#0f172a";
         cardBorderColor = "#1e293b";
+
+        tableBg = "#0f172a";
         tableHeaderBg = "#1e293b";
+        tableHeaderTextColor = "#94a3b8";
+        tableBorder = "#1e293b";
+        tableSelectedBg = "#1e293b";
+        tableSelectedText = "#00d2ff";
+
+        inputBg = "#0f172a";
+        inputBorder = "#1e293b";
+        inputFocusBorder = "#38bdf8";
     } else {
         mainBgColor = "#f8fafc";
         textColor = "#0f172a";
         cardBgColor = "#ffffff";
         cardBorderColor = "#cbd5e1";
+
+        tableBg = "#ffffff";
         tableHeaderBg = "#f1f5f9";
+        tableHeaderTextColor = "#475569";
+        tableBorder = "#cbd5e1";
+        tableSelectedBg = "#eff6ff";
+        tableSelectedText = "#2563eb";
+
+        inputBg = "#ffffff";
+        inputBorder = "#cbd5e1";
+        inputFocusBorder = "#2563eb";
     }
 
     this->setStyleSheet(QString(R"(
@@ -233,21 +290,54 @@ void WorkSphereWindow::applyTheme(const QString &themeName)
             background-color: %1;
             color: %2;
         }
-        QTableWidget {
-            background-color: %3;
+    )").arg(mainBgColor, textColor));
+
+    QString searchInputStyle = QString(R"(
+        QLineEdit {
+            background-color: %1;
             color: %2;
-            gridline-color: %4;
+            padding: 8px 10px;
+            border-radius: 6px;
+            border: 1px solid %3;
+            font-family: 'Segoe UI';
+        }
+        QLineEdit:focus {
             border: 1px solid %4;
+        }
+    )").arg(inputBg, textColor, inputBorder, inputFocusBorder);
+
+    if (searchEmployeeInput) searchEmployeeInput->setStyleSheet(searchInputStyle);
+    if (searchProjectInput) searchProjectInput->setStyleSheet(searchInputStyle);
+
+    QString tableStyle = QString(R"(
+        QTableWidget {
+            background-color: %1;
+            color: %2;
+            gridline-color: %3;
+            border: 1px solid %3;
             border-radius: 8px;
+            font-family: 'Segoe UI';
+        }
+        QTableWidget::item {
+            padding: 6px;
+        }
+        QTableWidget::item:selected {
+            background-color: %4;
+            color: %5;
         }
         QHeaderView::section {
-            background-color: %5;
-            color: %2;
+            background-color: %6;
+            color: %7;
             padding: 8px;
             border: none;
+            border-bottom: 1px solid %3;
             font-weight: bold;
         }
-    )").arg(mainBgColor, textColor, cardBgColor, cardBorderColor, tableHeaderBg));
+    )").arg(tableBg, textColor, tableBorder, tableSelectedBg, tableSelectedText, tableHeaderBg, tableHeaderTextColor);
+
+    if (ui->tableRecentEmployees) ui->tableRecentEmployees->setStyleSheet(tableStyle);
+    if (ui->tableRecentProjects) ui->tableRecentProjects->setStyleSheet(tableStyle);
+    if (ui->tableProjects) ui->tableProjects->setStyleSheet(tableStyle);
 
     if (ui->labelDashboardTitle) {
         ui->labelDashboardTitle->setStyleSheet(QString("color: %1; font-size: 26px; font-weight: bold; background: transparent;").arg(textColor));
@@ -289,29 +379,21 @@ bool WorkSphereWindow::eventFilter(QObject *watched, QEvent *event)
     if (event->type() == QEvent::MouseButtonPress) {
         QMouseEvent *mouseEvent = static_cast<QMouseEvent*>(event);
         if (watched == ui->tableRecentEmployees->viewport()) {
-            QModelIndex index = ui->tableRecentEmployees->indexAt(mouseEvent->pos());
-
-            if (!index.isValid()) {
+            if (!ui->tableRecentEmployees->itemAt(mouseEvent->pos())) {
                 ui->tableRecentEmployees->clearSelection();
-                return true;
-            }
-
-            if (ui->tableRecentEmployees->selectionModel()->isSelected(index)) {
-                ui->tableRecentEmployees->clearSelection();
-                return true;
             }
         }
-        if (watched == ui->dashboardPage) {
-            QWidget *child = ui->dashboardPage->childAt(mouseEvent->pos());
-
-            bool clickedOnTable = (child == ui->tableRecentEmployees || ui->tableRecentEmployees->isAncestorOf(child));
-            bool clickedOnActions = (actionWidget && (child == actionWidget || actionWidget->isAncestorOf(child)));
-
-            if (!clickedOnTable && !clickedOnActions) {
-                ui->tableRecentEmployees->clearSelection();
+        else if (watched == ui->tableRecentProjects->viewport()) {
+            if (!ui->tableRecentProjects->itemAt(mouseEvent->pos())) {
+                ui->tableRecentProjects->clearSelection();
             }
+        }
+        else if (watched == ui->dashboardPage) {
+            ui->tableRecentEmployees->clearSelection();
+            ui->tableRecentProjects->clearSelection();
         }
     }
+
     return QMainWindow::eventFilter(watched, event);
 }
 
@@ -375,7 +457,6 @@ void WorkSphereWindow::setupDashboard()
     ui->tableRecentEmployees->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->tableRecentEmployees->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
     ui->tableRecentProjects->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-    ui->tableRecentEmployees->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
     updateDashboardStats();
 }
@@ -430,11 +511,10 @@ void WorkSphereWindow::updateDashboardStats()
 
     if (widgetPayroll) {
         int payrollInt = static_cast<int>(finalPayroll);
-
         int maxPayroll = std::max(5000, static_cast<int>(finalPayroll * 1.3f));
 
         widgetPayroll->setValue(payrollInt, maxPayroll);
-        widgetPayroll->setSuffix(" " + currencySymbol); // Postavlja tačnu valutu i pokreće osvežavanje
+        widgetPayroll->setSuffix(" " + currencySymbol);
     }
 }
 
@@ -488,42 +568,73 @@ void WorkSphereWindow::createEmployeeForm()
     clearLayout(mainLayout);
 
     QString titleColor = m_isDarkTheme ? "#ffffff" : "#0f172a";
-    QString labelColor = m_isDarkTheme ? "#94a3b8" : "#475569";
+    QString subtitleColor = m_isDarkTheme ? "#94a3b8" : "#64748b";
 
-    QLabel *labelFormTitle = new QLabel("Add New Employee", ui->employeeFormPage);
+    QWidget *headerContainer = new QWidget(ui->employeeFormPage);
+    QVBoxLayout *headerLayout = new QVBoxLayout(headerContainer);
+    headerLayout->setContentsMargins(0, 0, 0, 15);
+    headerLayout->setSpacing(4);
+
+    QLabel *labelFormTitle = new QLabel("Create Employee Profile", headerContainer);
     labelFormTitle->setAlignment(Qt::AlignCenter);
-    labelFormTitle->setStyleSheet(QString("color: %1; font-size: 22px; font-weight: bold; font-family: 'Segoe UI'; margin-bottom: 25px;").arg(titleColor));
-    mainLayout->addWidget(labelFormTitle);
+    labelFormTitle->setStyleSheet(QString("color: %1; font-size: 24px; font-weight: bold; font-family: 'Segoe UI';").arg(titleColor));
+
+    QLabel *labelFormSubTitle = new QLabel("Enter details below to register a new worker or manager", headerContainer);
+    labelFormSubTitle->setAlignment(Qt::AlignCenter);
+    labelFormSubTitle->setStyleSheet(QString("color: %1; font-size: 13px; font-family: 'Segoe UI';").arg(subtitleColor));
+
+    headerLayout->addWidget(labelFormTitle);
+    headerLayout->addWidget(labelFormSubTitle);
+    mainLayout->addWidget(headerContainer);
+
+    auto createInputRow = [](QString labelText, QWidget *inputWidget, QWidget *parent) {
+        QWidget *rowWidget = new QWidget(parent);
+        QVBoxLayout *vBox = new QVBoxLayout(rowWidget);
+        vBox->setContentsMargins(0, 0, 0, 0);
+        vBox->setSpacing(6);
+
+        QLabel *lbl = new QLabel(labelText, rowWidget);
+        lbl->setObjectName("formLabel");
+
+        inputWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+
+        vBox->addWidget(lbl);
+        vBox->addWidget(inputWidget);
+        return rowWidget;
+    };
 
     QWidget *formContainer = new QWidget(ui->employeeFormPage);
     formContainer->setMaximumWidth(750);
     formContainer->setMinimumWidth(580);
+
     QVBoxLayout *formLayout = new QVBoxLayout(formContainer);
     formLayout->setSpacing(16);
     formLayout->setContentsMargins(20, 0, 20, 0);
 
     txtEmployeeName = new QLineEdit(formContainer);
-    txtEmployeeName->setPlaceholderText("Enter employee name...");
+    txtEmployeeName->setPlaceholderText("e.g. John Doe");
     QWidget *rowName = createInputRow("Full Name", txtEmployeeName, formContainer);
 
     txtEmployeeSalary = new QLineEdit(formContainer);
-    txtEmployeeSalary->setPlaceholderText("Enter salary amount...");
+    txtEmployeeSalary->setPlaceholderText("e.g. 4500");
     QWidget *rowSalary = createInputRow("Salary ($)", txtEmployeeSalary, formContainer);
 
     comboEmployeeType = new QComboBox(formContainer);
     comboEmployeeType->addItem("Worker");
     comboEmployeeType->addItem("Manager");
+    comboEmployeeType->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
     QWidget *rowType = createInputRow("Employee Type", comboEmployeeType, formContainer);
 
     QStackedWidget *stackedFields = new QStackedWidget(formContainer);
+    stackedFields->setContentsMargins(0, 0, 0, 0);
 
     txtEmployeePosition = new QLineEdit();
-    txtEmployeePosition->setPlaceholderText("Enter worker position...");
+    txtEmployeePosition->setPlaceholderText("e.g. Senior C++ Developer");
     QWidget *workerPage = createInputRow("Position", txtEmployeePosition, stackedFields);
     stackedFields->addWidget(workerPage);
 
     txtEmployeeBonus = new QLineEdit();
-    txtEmployeeBonus->setPlaceholderText("Enter manager bonus...");
+    txtEmployeeBonus->setPlaceholderText("e.g. 1200");
     QWidget *managerPage = createInputRow("Bonus ($)", txtEmployeeBonus, stackedFields);
     stackedFields->addWidget(managerPage);
 
@@ -535,7 +646,13 @@ void WorkSphereWindow::createEmployeeForm()
     btnCreate->setCursor(Qt::PointingHandCursor);
 
     QString formStyle = m_isDarkTheme ? R"(
-        QLineEdit, QComboBox, QStackedWidget {
+        QLabel#formLabel {
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: bold;
+            font-family: 'Segoe UI';
+        }
+        QLineEdit, QComboBox {
             background-color: #040711;
             color: #ffffff;
             border: 1px solid #1e293b;
@@ -550,7 +667,7 @@ void WorkSphereWindow::createEmployeeForm()
         QComboBox::drop-down {
             subcontrol-origin: padding;
             subcontrol-position: top right;
-            width: 25px;
+            width: 30px;
             border-left-width: 0px;
         }
         QComboBox QAbstractItemView {
@@ -578,7 +695,13 @@ void WorkSphereWindow::createEmployeeForm()
             background-color: #059669;
         }
     )" : R"(
-        QLineEdit, QComboBox, QStackedWidget {
+        QLabel#formLabel {
+            color: #0f172a;
+            font-size: 13px;
+            font-weight: bold;
+            font-family: 'Segoe UI';
+        }
+        QLineEdit, QComboBox {
             background-color: #ffffff;
             color: #0f172a;
             border: 1px solid #cbd5e1;
@@ -593,7 +716,7 @@ void WorkSphereWindow::createEmployeeForm()
         QComboBox::drop-down {
             subcontrol-origin: padding;
             subcontrol-position: top right;
-            width: 25px;
+            width: 30px;
             border-left-width: 0px;
         }
         QComboBox QAbstractItemView {
@@ -621,6 +744,7 @@ void WorkSphereWindow::createEmployeeForm()
             background-color: #1e40af;
         }
     )";
+
     formContainer->setStyleSheet(formStyle);
 
     formLayout->addWidget(rowName);
@@ -663,7 +787,6 @@ void WorkSphereWindow::createProjectForm()
     labelFormTitle->setStyleSheet(QString("color: %1; font-size: 22px; font-weight: bold; font-family: 'Segoe UI'; margin-bottom: 25px;").arg(titleColor));
     mainLayout->addWidget(labelFormTitle);
 
-    // MAIN CONTAINER
     QWidget *formContainer = new QWidget(ui->projectFormPage);
     formContainer->setMaximumWidth(750);
     formContainer->setMinimumWidth(580);
@@ -691,9 +814,12 @@ void WorkSphereWindow::createProjectForm()
     QWidget *rowName = createInputRow("Project Name", editProjectName, formContainer);
 
     // 2. DEADLINE
+    QSettings settings("WorkSphere", "WorkSphereApp");
+    QString dateFormat = settings.value("general/dateFormat", "dd.MM.yyyy").toString();
+
     editProjectDeadline = new QDateEdit(QDate::currentDate().addMonths(1), formContainer);
     editProjectDeadline->setCalendarPopup(true);
-    editProjectDeadline->setDisplayFormat("dd.MM.yyyy");
+    editProjectDeadline->setDisplayFormat(dateFormat);
     QWidget *rowDeadline = createInputRow("Deadline", editProjectDeadline, formContainer);
 
     // 3. SAVE BUTTON
@@ -823,6 +949,7 @@ void WorkSphereWindow::on_btnSaveProject_clicked()
     editProjectDeadline->setDate(QDate::currentDate().addMonths(1));
 
     refreshProjectTable();
+    updateDashboardStats();
 }
 
 void WorkSphereWindow::createSettingsForm()
@@ -866,25 +993,21 @@ void WorkSphereWindow::createSettingsForm()
     QString savedDateFormat = settings.value("general/dateFormat", "dd.MM.yyyy").toString();
     QString savedTheme = settings.value("general/theme", m_isDarkTheme ? "Dark Theme (Default)" : "Light Theme").toString();
 
-    // 1. SELECTOR VALUE
     comboCurrency = new QComboBox(formContainer);
     comboCurrency->addItems({"EUR (€)", "USD ($)", "RSD (din)", "BAM (KM)"});
     comboCurrency->setCurrentText(savedCurrency);
     QWidget *rowCurrency = createInputRow("Application Currency", comboCurrency, formContainer);
 
-    // 2. DATE FORMAT
     comboDateFormat = new QComboBox(formContainer);
     comboDateFormat->addItems({"dd.MM.yyyy", "yyyy-MM-dd", "MM/dd/yyyy"});
     comboDateFormat->setCurrentText(savedDateFormat);
     QWidget *rowDateFormat = createInputRow("Date Display Format", comboDateFormat, formContainer);
 
-    // 3. APPLICATION THEME
     comboTheme = new QComboBox(formContainer);
     comboTheme->addItems({"Dark Theme (Default)", "Light Theme"});
     comboTheme->setCurrentText(savedTheme);
     QWidget *rowTheme = createInputRow("Appearance Theme", comboTheme, formContainer);
 
-    // 4. SAVE BUTTON
     QPushButton *btnSaveSettings = new QPushButton("Save Preferences", formContainer);
     btnSaveSettings->setObjectName("createButton");
     btnSaveSettings->setCursor(Qt::PointingHandCursor);
@@ -1010,9 +1133,10 @@ void WorkSphereWindow::saveSettings()
 
     updateDashboardStats();
 
+    refreshProjectTable();
+
     QMessageBox::information(this, "Settings Saved", "Your preferences have been successfully updated!");
 }
-
 
 void WorkSphereWindow::on_btnCreateEmployee_clicked()
 {
@@ -1043,7 +1167,7 @@ void WorkSphereWindow::on_btnCreateEmployee_clicked()
         }
 
         Worker worker(positionStr.toStdString(), id, nameStr.toStdString(), salary);
-        m_database.addWorker(worker); // <--- Writes to SQL Server
+        m_database.addWorker(worker);
     }
     else { // Manager
         QString bonusStr = txtEmployeeBonus->text().trimmed();
@@ -1061,14 +1185,82 @@ void WorkSphereWindow::on_btnCreateEmployee_clicked()
         }
 
         Manager manager(id, nameStr.toStdString(), salary, bonus);
-        m_database.addManager(manager); // <--- Writes to SQL Server
+        m_database.addManager(manager);
     }
 
-    // Success message
     QMessageBox::information(this, "Success", "Employee added successfully!");
 
     updateDashboardStats();
     refreshEmployeeTable();
+}
+
+void WorkSphereWindow::on_btnEditEmployee_clicked()
+{
+    int currentRow = ui->tableRecentEmployees->currentRow();
+    if (currentRow < 0) {
+        QMessageBox::warning(this, "Selection Error", "Please select an employee from the table to edit!");
+        return;
+    }
+
+    QTableWidgetItem *idItem = ui->tableRecentEmployees->item(currentRow, 0);
+    QTableWidgetItem *nameItem = ui->tableRecentEmployees->item(currentRow, 1);
+    QTableWidgetItem *salaryItem = ui->tableRecentEmployees->item(currentRow, 2);
+    QTableWidgetItem *typeItem = ui->tableRecentEmployees->item(currentRow, 3);
+    QTableWidgetItem *positionBonusItem = ui->tableRecentEmployees->item(currentRow, 4);
+
+    if (!idItem || !nameItem || !salaryItem) {
+        QMessageBox::critical(this, "Error", "Invalid employee data in selected row.");
+        return;
+    }
+
+    int empId = idItem->text().toInt();
+    QString name = nameItem->text().trimmed();
+
+    bool salaryOk = false;
+    float salary = salaryItem->text().toFloat(&salaryOk);
+
+    if (name.isEmpty()) {
+        QMessageBox::warning(this, "Validation Error", "Employee name cannot be empty!");
+        return;
+    }
+
+    if (!salaryOk || salary < 0) {
+        QMessageBox::warning(this, "Validation Error", "Salary must be a valid non-negative number!");
+        return;
+    }
+
+    QString empType = typeItem ? typeItem->text().trimmed() : "Worker";
+    QString extraField = positionBonusItem ? positionBonusItem->text().trimmed() : "";
+
+    try {
+        if (empType.contains("Worker", Qt::CaseInsensitive)) {
+            if (extraField.isEmpty()) {
+                QMessageBox::warning(this, "Validation Error", "Position cannot be empty!");
+                return;
+            }
+            Worker worker(extraField.toStdString(), empId, name.toStdString(), salary);
+            m_database.updateEmployee(worker);
+        } else { // Manager
+            bool bonusOk = false;
+            float bonus = extraField.toFloat(&bonusOk);
+            if (!bonusOk || bonus < 0) {
+                QMessageBox::warning(this, "Validation Error", "Bonus must be a valid non-negative number!");
+                return;
+            }
+            Manager manager(empId, name.toStdString(), salary, bonus);
+            m_database.updateEmployee(manager);
+        }
+
+        QMessageBox::information(this, "Success", "Employee details successfully updated!");
+        refreshEmployeeTable();
+        updateDashboardStats();
+    }
+    catch (const std::exception& e) {
+        QMessageBox::critical(this, "Database Error", QString("Failed to update employee: %1").arg(e.what()));
+    }
+    catch (...) {
+        QMessageBox::critical(this, "Database Error", "An error occurred while updating employee data.");
+    }
 }
 
 void WorkSphereWindow::on_btnDeleteEmployee_clicked()
@@ -1100,7 +1292,7 @@ void WorkSphereWindow::on_btnDeleteEmployee_clicked()
 
             QMessageBox::information(this, "Success", "Employee deleted from database.");
             refreshEmployeeTable();
-            updateDashboardStats(); // Da se osveže i statistike na dashboard-u
+            updateDashboardStats();
         }
         catch (const std::exception& e) {
             QMessageBox::critical(this, "Database Error", QString("Failed to delete employee: %1").arg(e.what()));
@@ -1115,8 +1307,6 @@ void WorkSphereWindow::onEmployeeCellChanged(int row, int column)
 {
     Q_UNUSED(row);
     Q_UNUSED(column);
-
-    // ui->btnSaveEmp->setEnabled(true);
 }
 
 void WorkSphereWindow::refreshEmployeeTable()
@@ -1129,16 +1319,33 @@ void WorkSphereWindow::refreshEmployeeTable()
         int row = ui->tableRecentEmployees->rowCount();
         ui->tableRecentEmployees->insertRow(row);
 
-        ui->tableRecentEmployees->setItem(row, 0, new QTableWidgetItem(QString::number(emp->getId())));
+        // 1. ID - READ ONLY
+        QTableWidgetItem *idItem = new QTableWidgetItem(QString::number(emp->getId()));
+        idItem->setFlags(idItem->flags() & ~Qt::ItemIsEditable);
+        ui->tableRecentEmployees->setItem(row, 0, idItem);
+
+        // 2. Name - Editable
         ui->tableRecentEmployees->setItem(row, 1, new QTableWidgetItem(QString::fromStdString(emp->getName())));
+
+        // 3. Salary - Editable
         ui->tableRecentEmployees->setItem(row, 2, new QTableWidgetItem(QString::number(emp->getSalary())));
 
         if (auto worker = dynamic_cast<const Worker*>(emp.get())) {
-            ui->tableRecentEmployees->setItem(row, 3, new QTableWidgetItem("Worker"));
+            // 4. Type ("Worker") - READ ONLY
+            QTableWidgetItem *typeItem = new QTableWidgetItem("Worker");
+            typeItem->setFlags(typeItem->flags() & ~Qt::ItemIsEditable);
+            ui->tableRecentEmployees->setItem(row, 3, typeItem);
+
+            // 5. Position - Editable
             ui->tableRecentEmployees->setItem(row, 4, new QTableWidgetItem(QString::fromStdString(worker->getPosition())));
         }
         else if (auto manager = dynamic_cast<const Manager*>(emp.get())) {
-            ui->tableRecentEmployees->setItem(row, 3, new QTableWidgetItem("Manager"));
+            // 4. Type ("Manager") - READ ONLY
+            QTableWidgetItem *typeItem = new QTableWidgetItem("Manager");
+            typeItem->setFlags(typeItem->flags() & ~Qt::ItemIsEditable);
+            ui->tableRecentEmployees->setItem(row, 3, typeItem);
+
+            // 5. Bonus - Editable
             ui->tableRecentEmployees->setItem(row, 4, new QTableWidgetItem(QString::number(manager->getBonus())));
         }
     }
@@ -1147,56 +1354,110 @@ void WorkSphereWindow::refreshEmployeeTable()
 void WorkSphereWindow::refreshProjectTable()
 {
     projectsList.clear();
-    ui->tableRecentProjects->setRowCount(0);
-    if (ui->tableProjects) {
-        ui->tableProjects->setRowCount(0);
-    }
 
-    // Load configured date format
     QSettings settings("WorkSphere", "WorkSphereApp");
     QString dateFormat = settings.value("general/dateFormat", "dd.MM.yyyy").toString();
 
-    QSqlQuery query("SELECT Name, Deadline FROM Projects");
-    while (query.next()) {
-        std::string name = query.value(0).toString().toStdString();
-        QDate deadline = query.value(1).toDate();
+    auto setupTable = [](QTableWidget *table) {
+        if (!table) return;
+        table->setRowCount(0);
+        table->setSelectionBehavior(QAbstractItemView::SelectRows);
+        table->setSelectionMode(QAbstractItemView::SingleSelection);
+        table->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed);
+    };
 
-        projectsList.emplace_back(name, deadline);
-    }
+    setupTable(ui->tableRecentProjects);
+    setupTable(ui->tableProjects);
+
+    QSqlQuery query("SELECT Id, Name, Deadline FROM Projects");
 
     int row = 0;
-    for (const auto &proj : projectsList) {
-        QString nameStr = QString::fromStdString(proj.getName());
-        QString deadlineStr = proj.getDeadline().toString(dateFormat);
+    while (query.next()) {
+        int id = query.value(0).toInt();
+        std::string name = query.value(1).toString().toStdString();
+        QDate deadline = query.value(2).toDate();
 
-        ui->tableRecentProjects->insertRow(row);
-        ui->tableRecentProjects->setItem(row, 0, new QTableWidgetItem(nameStr));
-        ui->tableRecentProjects->setItem(row, 1, new QTableWidgetItem(deadlineStr));
+        projectsList.emplace_back(name, deadline);
+
+        QString nameStr = QString::fromStdString(name);
+        QString deadlineStr = formatDate(deadline);
+
+        QDate currentDate = QDate::currentDate();
+        QString statusText;
+        QColor statusColor;
+
+        if (currentDate > deadline) {
+            statusText = "Overdue";
+            statusColor = QColor("#ef4444");
+        } else {
+            statusText = "Active";
+            statusColor = QColor("#10b981");
+        }
+
+        if (ui->tableRecentProjects) {
+            ui->tableRecentProjects->insertRow(row);
+
+            QTableWidgetItem *idItem = new QTableWidgetItem(QString::number(id));
+            idItem->setFlags(idItem->flags() & ~Qt::ItemIsEditable);
+
+            QTableWidgetItem *statusItemRecent = new QTableWidgetItem(statusText);
+            statusItemRecent->setFlags(statusItemRecent->flags() & ~Qt::ItemIsEditable);
+            statusItemRecent->setTextAlignment(Qt::AlignCenter);
+            statusItemRecent->setForeground(statusColor);
+
+            ui->tableRecentProjects->setItem(row, 0, idItem);
+            ui->tableRecentProjects->setItem(row, 1, new QTableWidgetItem(nameStr));
+            ui->tableRecentProjects->setItem(row, 2, new QTableWidgetItem(deadlineStr));
+            ui->tableRecentProjects->setItem(row, 3, statusItemRecent);
+        }
 
         if (ui->tableProjects) {
             ui->tableProjects->insertRow(row);
-            ui->tableProjects->setItem(row, 0, new QTableWidgetItem(nameStr));
-            ui->tableProjects->setItem(row, 1, new QTableWidgetItem(deadlineStr));
+
+            // ID - READ ONLY
+            QTableWidgetItem *idItem = new QTableWidgetItem(QString::number(id));
+            idItem->setFlags(idItem->flags() & ~Qt::ItemIsEditable);
+
+            // Name - EDITABLE
+            QTableWidgetItem *nameItem = new QTableWidgetItem(nameStr);
+
+            // Deadline - EDITABLE
+            QTableWidgetItem *deadlineItem = new QTableWidgetItem(deadlineStr);
+
+            // Status - READ ONLY
+            QTableWidgetItem *statusItemMain = new QTableWidgetItem(statusText);
+            statusItemMain->setFlags(statusItemMain->flags() & ~Qt::ItemIsEditable);
+            statusItemMain->setTextAlignment(Qt::AlignCenter);
+            statusItemMain->setForeground(statusColor);
+
+            ui->tableProjects->setItem(row, 0, idItem);
+            ui->tableProjects->setItem(row, 1, nameItem);
+            ui->tableProjects->setItem(row, 2, deadlineItem);
+            ui->tableProjects->setItem(row, 3, statusItemMain);
+
+            if (ui->tableProjects->columnCount() >= 5) {
+                addProjectActionButtons(row, id);
+            }
         }
 
         row++;
     }
+    onProjectSelectionChanged();
 }
 
 void WorkSphereWindow::addProjectActionButtons(int row, int projectId)
 {
-    QWidget *actionWidget = new QWidget(this);
-    QHBoxLayout *layout = new QHBoxLayout(actionWidget);
+    QWidget *btnWidget = new QWidget(this);
+    QHBoxLayout *layout = new QHBoxLayout(btnWidget);
     layout->setContentsMargins(4, 2, 4, 2);
     layout->setSpacing(6);
 
-    QPushButton *btnEdit = new QPushButton("Edit", actionWidget);
-    QPushButton *btnDelete = new QPushButton("Delete", actionWidget);
+    QPushButton *btnEdit = new QPushButton("Edit", btnWidget);
+    QPushButton *btnDelete = new QPushButton("Delete", btnWidget);
 
-    // Stilovi sa novim bojama specifičnim za projekte
     btnEdit->setStyleSheet(
         "QPushButton {"
-        "   background-color: #6C5CE7;" // Ljubičasta / Indigo za projekte
+        "   background-color: #6C5CE7;"
         "   color: white;"
         "   border: none;"
         "   border-radius: 4px;"
@@ -1207,7 +1468,7 @@ void WorkSphereWindow::addProjectActionButtons(int row, int projectId)
 
     btnDelete->setStyleSheet(
         "QPushButton {"
-        "   background-color: #E17055;" // Narandžasto-crvena za brisanje projekta
+        "   background-color: #E17055;"
         "   color: white;"
         "   border: none;"
         "   border-radius: 4px;"
@@ -1218,9 +1479,9 @@ void WorkSphereWindow::addProjectActionButtons(int row, int projectId)
 
     layout->addWidget(btnEdit);
     layout->addWidget(btnDelete);
-    actionWidget->setLayout(layout);
+    btnWidget->setLayout(layout);
 
-    ui->tableProjects->setCellWidget(row, 2, actionWidget);
+    ui->tableProjects->setCellWidget(row, 3, btnWidget);
 
     connect(btnEdit, &QPushButton::clicked, this, [this, projectId]() {
         on_editProject_clicked(projectId);
@@ -1235,8 +1496,8 @@ void WorkSphereWindow::on_deleteProject_clicked(int projectId)
 {
     QMessageBox::StandardButton confirm = QMessageBox::question(
         this,
-        "Potvrda brisanja",
-        "Da li ste sigurni da želite da obrišete ovaj projekat?",
+        "Confirm Deletion",
+        "Are you sure you want to delete this project?",
         QMessageBox::Yes | QMessageBox::No
         );
 
@@ -1246,17 +1507,17 @@ void WorkSphereWindow::on_deleteProject_clicked(int projectId)
         query.bindValue(":id", projectId);
 
         if (query.exec()) {
-            QMessageBox::information(this, "Uspeh", "Projekat je uspešno obrisan!");
+            QMessageBox::information(this, "Success", "Project deleted successfully!");
             refreshProjectTable();
+            updateDashboardStats();
         } else {
-            QMessageBox::critical(this, "Greška", "Greška pri brisanju projekta.");
+            QMessageBox::critical(this, "Database Error", "Failed to delete project from database.");
         }
     }
 }
 
 void WorkSphereWindow::on_editProject_clicked(int projectId)
 {
-    // Dobavljanje trenutnih podataka iz baze
     QSqlQuery query;
     query.prepare("SELECT Name, Deadline FROM Projects WHERE Id = :id");
     query.bindValue(":id", projectId);
@@ -1266,9 +1527,8 @@ void WorkSphereWindow::on_editProject_clicked(int projectId)
     QString currentName = query.value(0).toString();
     QDate currentDeadline = query.value(1).toDate();
 
-    // Dijalog za izmenu
     QDialog dialog(this);
-    dialog.setWindowTitle("Izmena Projekta");
+    dialog.setWindowTitle("Edit Project");
     QVBoxLayout *layout = new QVBoxLayout(&dialog);
 
     QLineEdit *editName = new QLineEdit(currentName, &dialog);
@@ -1279,9 +1539,9 @@ void WorkSphereWindow::on_editProject_clicked(int projectId)
         QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dialog
         );
 
-    layout->addWidget(new QLabel("Naziv projekta:"));
+    layout->addWidget(new QLabel("Project Name:"));
     layout->addWidget(editName);
-    layout->addWidget(new QLabel("Rok (Deadline):"));
+    layout->addWidget(new QLabel("Deadline:"));
     layout->addWidget(editDeadline);
     layout->addWidget(buttonBox);
 
@@ -1293,7 +1553,7 @@ void WorkSphereWindow::on_editProject_clicked(int projectId)
         QDate newDeadline = editDeadline->date();
 
         if (newName.isEmpty()) {
-            QMessageBox::warning(this, "Greška", "Naziv ne može biti prazan!");
+            QMessageBox::warning(this, "Validation Error", "Project name cannot be empty!");
             return;
         }
 
@@ -1304,22 +1564,12 @@ void WorkSphereWindow::on_editProject_clicked(int projectId)
         updateQuery.bindValue(":id", projectId);
 
         if (updateQuery.exec()) {
-            QMessageBox::information(this, "Uspeh", "Projekat uspešno izmenjen!");
+            QMessageBox::information(this, "Success", "Project updated successfully!");
             refreshProjectTable();
         } else {
-            QMessageBox::critical(this, "Greška", "Greška pri ažuriranju baze.");
+            QMessageBox::critical(this, "Database Error", "Failed to update project in database.");
         }
     }
-}
-
-void WorkSphereWindow::on_btnAddProject_clicked()
-{
-    // Logika za prelazak na formu ili dodavanje projekta
-}
-
-void WorkSphereWindow::on_btnCancelProject_clicked()
-{
-    // Logika za otkazivanje / povratak
 }
 
 QWidget* WorkSphereWindow::createInputRow(const QString &labelText, QWidget *inputField, QWidget *parent)
@@ -1335,4 +1585,115 @@ QWidget* WorkSphereWindow::createInputRow(const QString &labelText, QWidget *inp
     layout->addWidget(inputField);
 
     return rowWidget;
+}
+
+void WorkSphereWindow::on_btnDeleteProject_clicked()
+{
+    int currentRow = ui->tableRecentProjects->currentRow();
+    if (currentRow < 0) {
+        QMessageBox::warning(this, "Selection Error", "Please select a project from the table to delete.");
+        return;
+    }
+
+    QTableWidgetItem *idItem = ui->tableRecentProjects->item(currentRow, 0);
+    QTableWidgetItem *nameItem = ui->tableRecentProjects->item(currentRow, 1);
+
+    if (!idItem) return;
+
+    int projId = idItem->text().toInt();
+    QString projName = nameItem ? nameItem->text() : "selected project";
+
+    QMessageBox::StandardButton reply = QMessageBox::question(
+        this, "Confirm Deletion",
+        QString("Are you sure you want to delete the project: %1 (ID: %2)?").arg(projName).arg(projId),
+        QMessageBox::Yes | QMessageBox::No
+        );
+
+    if (reply == QMessageBox::Yes) {
+        QSqlQuery query;
+        query.prepare("DELETE FROM Projects WHERE Id = :id");
+        query.bindValue(":id", projId);
+
+        if (query.exec()) {
+            QMessageBox::information(this, "Success", "Project successfully deleted!");
+            refreshProjectTable();
+            updateDashboardStats();
+        } else {
+            QMessageBox::critical(this, "Database Error", "Failed to delete project: " + query.lastError().text());
+        }
+    }
+}
+
+void WorkSphereWindow::on_btnEditProject_clicked()
+{
+    int currentRow = ui->tableRecentProjects->currentRow();
+    if (currentRow < 0) {
+        QMessageBox::warning(this, "Selection Error", "Please select a project from the table to edit.");
+        return;
+    }
+
+    QTableWidgetItem *idItem = ui->tableRecentProjects->item(currentRow, 0);
+    QTableWidgetItem *nameItem = ui->tableRecentProjects->item(currentRow, 1);
+    QTableWidgetItem *deadlineItem = ui->tableRecentProjects->item(currentRow, 2);
+
+    if (!idItem || !nameItem || !deadlineItem) {
+        QMessageBox::critical(this, "Error", "Project data could not be retrieved from the table.");
+        return;
+    }
+
+    int projId = idItem->text().toInt();
+    QString projName = nameItem->text().trimmed();
+    QString deadlineStr = deadlineItem->text().trimmed();
+
+    if (projName.isEmpty()) {
+        QMessageBox::warning(this, "Validation Error", "Project name cannot be empty!");
+        return;
+    }
+
+    QSettings settings("WorkSphere", "WorkSphereApp");
+    QString dateFormat = settings.value("general/dateFormat", "dd.MM.yyyy").toString();
+    QDate deadline = QDate::fromString(deadlineStr, dateFormat);
+
+    if (!deadline.isValid()) {
+        deadline = QDate::fromString(deadlineStr, "yyyy-MM-dd");
+    }
+
+    if (!deadline.isValid()) {
+        QMessageBox::warning(this, "Validation Error", QString("Invalid date format! Expected format is %1").arg(dateFormat));
+        return;
+    }
+
+    QSqlQuery query;
+    query.prepare("UPDATE Projects SET Name = :name, Deadline = :deadline WHERE Id = :id");
+    query.bindValue(":name", projName);
+    query.bindValue(":deadline", deadline);
+    query.bindValue(":id", projId);
+
+    if (query.exec()) {
+        QMessageBox::information(this, "Success", "Project details successfully updated!");
+        refreshProjectTable();
+    } else {
+        QMessageBox::critical(this, "Database Error", "Failed to update project: " + query.lastError().text());
+    }
+}
+
+void WorkSphereWindow::onProjectSelectionChanged()
+{
+    bool hasMainSel = (ui->tableProjects && !ui->tableProjects->selectedItems().isEmpty());
+    bool hasRecentSel = (ui->tableRecentProjects && !ui->tableRecentProjects->selectedItems().isEmpty());
+
+    bool hasSelection = hasMainSel || hasRecentSel;
+
+    if (ui->btnEditProject) {
+        ui->btnEditProject->setVisible(hasSelection);
+    }
+    if (ui->btnDeleteProject) {
+        ui->btnDeleteProject->setVisible(hasSelection);
+    }
+}
+
+QString WorkSphereWindow::formatDate(const QDate &date) const {
+    QSettings settings("WorkSphere", "WorkSphereApp");
+    QString dateFormat = settings.value("general/dateFormat", "dd.MM.yyyy").toString();
+    return date.toString(dateFormat);
 }

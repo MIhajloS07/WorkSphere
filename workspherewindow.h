@@ -12,7 +12,6 @@
 #include <QEvent>
 #include <QMouseEvent>
 #include <vector>
-
 #include "./models/Project.h"
 #include "./database/Database.h"
 #include "./widgetmodels/CircularProgressWidget.h"
@@ -41,11 +40,12 @@ private slots:
     void on_btnCreateEmployee_clicked();
     void on_btnDeleteEmployee_clicked();
     void onEmployeeCellChanged(int row, int column);
-    void on_btnAddProject_clicked();
-    void on_btnCancelProject_clicked();
     void on_editProject_clicked(int projectId);
     void on_deleteProject_clicked(int projectId);
-
+    void on_btnDeleteProject_clicked();
+    void on_btnEditProject_clicked();
+    void onProjectSelectionChanged();
+    void on_btnEditEmployee_clicked();
 private:
     void setupNavigation();
     void setupDashboard();
@@ -68,6 +68,7 @@ private:
     void addProjectActionButtons(int row, int projectId);
 
     QWidget* createInputRow(const QString &labelText, QWidget *inputField, QWidget *parent = nullptr);
+    QString formatDate(const QDate &date) const;
     QWidget *actionWidget = nullptr;
 
     bool m_isDarkTheme = true;

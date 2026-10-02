@@ -26,6 +26,8 @@ public:
     void removeProject(int id);
 
     void updateSalary(int id, float newSalary);
+    void updateProject(int id, const std::string& name, const QDate& deadline);
+    void updateEmployee(const Employee& employee);
 
     std::vector<std::unique_ptr<Employee>> loadEmployees();
     std::vector<std::unique_ptr<Project>> loadProjects();
