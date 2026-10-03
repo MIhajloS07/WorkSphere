@@ -3,7 +3,9 @@
 <img width="239" height="231" alt="image" src="logo.svg" />
 
 
-# WorkSphere
+<h1 align="center">
+  <center><img src="https://readme-typing-svg.demolab.com?font=Fira+Code&size=35&pause=1000&color=0a78a3&width=600&lines=Worksphere+desktop+platform" alt="Typing SVG" /></center>
+</h1>
 
 **A modern desktop platform for workforce administration, project tracking, and resource allocation.**
 Built with C++ and Qt, backed by Microsoft SQL Server.
