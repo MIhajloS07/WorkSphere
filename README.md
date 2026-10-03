@@ -26,7 +26,6 @@ Built with C++ and Qt, backed by Microsoft SQL Server.
 - [Tech stack](#tech-stack)
 - [Architecture](#architecture)
 - [Getting started](#getting-started)
-- [Database setup](#database-setup)
 - [Configuration](#configuration)
 - [Usage](#usage)
 - [Project structure](#project-structure)
