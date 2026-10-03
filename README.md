@@ -1,6 +1,6 @@
 <div align="center">
 
-<img width="239" height="231" alt="image" src="https://github.com/user-attachments/assets/1d753591-e03e-4ece-8a4a-50817cd4621c" />
+<img width="239" height="231" alt="image" src="logo.svg" />
 
 
 # WorkSphere
