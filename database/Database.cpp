@@ -23,12 +23,12 @@ void Database::createTables() {
     QSqlQuery query(db);
 
     if (!query.exec("EXEC dbo.CreateEmployeesTable")) {
-        std::cerr << "Upozorenje / Greška pri kreiranju tabele Employees: "
+        std::cerr << "Warning / error while creating Employees table: "
                   << query.lastError().text().toStdString() << std::endl;
     }
 
     if (!query.exec("EXEC dbo.CreateProjectsTable")) {
-        std::cerr << "Upozorenje / Greška pri kreiranju tabele Projects: "
+        std::cerr << "Warning / error while creating Projects table:"
                   << query.lastError().text().toStdString() << std::endl;
     }
 }
@@ -216,7 +216,6 @@ void Database::updateEmployee(const Employee& employee) {
     try {
         QSqlQuery query(db);
 
-        // Provjeravamo da li je u pitanju Menadžer ili Radnik
         if (auto manager = dynamic_cast<const Manager*>(&employee)) {
             query.prepare("EXEC dbo.UpdateManager ?, ?, ?, ?");
             query.bindValue(0, manager->getId());
@@ -241,7 +240,7 @@ void Database::updateEmployee(const Employee& employee) {
     }
     catch (const std::exception& e) {
         std::cerr << "Error updating employee: " << e.what() << std::endl;
-        throw; // Prosljeđujemo grešku dalje ka UI-ju kako bi QMessageBox mogao da je prikaže
+        throw;
     }
 }
 

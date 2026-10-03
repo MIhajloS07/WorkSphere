@@ -37,15 +37,14 @@ private slots:
     void on_btnProjects_clicked();
     void on_btnSaveProject_clicked();
     void saveSettings();
-    void on_btnCreateEmployee_clicked();
     void on_btnDeleteEmployee_clicked();
     void onEmployeeCellChanged(int row, int column);
-    void on_editProject_clicked(int projectId);
-    void on_deleteProject_clicked(int projectId);
     void on_btnDeleteProject_clicked();
     void on_btnEditProject_clicked();
     void onProjectSelectionChanged();
     void on_btnEditEmployee_clicked();
+    void on_btnSaveAssignment_clicked();
+
 private:
     void setupNavigation();
     void setupDashboard();
@@ -55,7 +54,8 @@ private:
     void createEmployeeForm();
     void createProjectForm();
     void createSettingsForm();
-
+    void setActiveButtonStyle(QPushButton* activeButton);
+    void loadAssignmentData();
     void applyTheme(const QString &themeName);
     void updateNavigationStyles();
     void clearLayout(QLayout *layout);
@@ -64,8 +64,21 @@ private:
     void refreshEmployeeTable();
     void refreshProjectTable();
     void updateDashboardStats();
-
+    void createAssignWorkerForm(QVBoxLayout *parentLayout);
     void addProjectActionButtons(int row, int projectId);
+
+    void handleProjectSelectionChanged();
+    void handleProjectsButtonClicked();
+    void handleCreateEmployee();
+    void handleEditEmployee();
+    void handleDeleteEmployee();
+    void handleEditProject();
+    void handleEditProject(int projectId);
+    void handleDeleteProject();
+    void handleDeleteProject(int projectId);
+    void handleSaveProject();
+    void handleSaveAssignment();
+    void handleAssignWorker();
 
     QWidget* createInputRow(const QString &labelText, QWidget *inputField, QWidget *parent = nullptr);
     QString formatDate(const QDate &date) const;
@@ -76,21 +89,22 @@ private:
 
     QPushButton *m_activeNavButton = nullptr;
 
-    QLineEdit *editProjectName = nullptr;
     QDateEdit *editProjectDeadline = nullptr;
-
-    QLineEdit *searchEmployeeInput = nullptr;
-    QLineEdit *searchProjectInput = nullptr;
 
     QComboBox *comboCurrency = nullptr;
     QComboBox *comboDateFormat = nullptr;
     QComboBox *comboTheme = nullptr;
+    QComboBox *comboAssignProject = nullptr;
+    QComboBox *comboAssignEmployee = nullptr;
+    QComboBox *comboEmployeeType = nullptr;
 
     QLineEdit *txtEmployeeName = nullptr;
     QLineEdit *txtEmployeeSalary = nullptr;
-    QComboBox *comboEmployeeType = nullptr;
     QLineEdit *txtEmployeePosition = nullptr;
     QLineEdit *txtEmployeeBonus = nullptr;
+    QLineEdit *searchEmployeeInput = nullptr;
+    QLineEdit *searchProjectInput = nullptr;
+    QLineEdit *editProjectName = nullptr;
 
     CircularProgressWidget *widgetEmployees = nullptr;
     CircularProgressWidget *widgetProjects = nullptr;
