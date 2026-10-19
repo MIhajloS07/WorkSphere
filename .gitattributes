@@ -1,1 +1,5 @@
 Makefile linguist-vendored
+makefile linguist-vendored
+*.cpp linguist-detectable
+*.h linguist-detectable
+*.hpp linguist-detectable
